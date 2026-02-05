@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="border-t border-charcoal/10 py-12 px-6 md:px-12 lg:px-24">
+    <footer id="contact" className="border-t border-charcoal/10 py-12 px-6 md:px-12 lg:px-24">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
           {/* Brand name */}

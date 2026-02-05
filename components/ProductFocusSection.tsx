@@ -13,7 +13,7 @@ export default function ProductFocusSection() {
   ];
 
   return (
-    <Section className="py-32 px-6 md:px-12 lg:px-24">
+    <Section id="collection" className="py-32 px-6 md:px-12 lg:px-24">
       <div className="max-w-7xl mx-auto">
         <h2 className="font-serif text-5xl md:text-6xl lg:text-7xl text-charcoal mb-16 text-center">
           The Collection

@@ -1,16 +1,20 @@
 import Hero from "@/components/Hero";
-import PhilosophySection from "@/components/PhilosophySection";
+import Header from "@/components/Header";
+import VisionSection from "@/components/VisionSection";
 import ProductFocusSection from "@/components/ProductFocusSection";
-import AtelierSection from "@/components/AtelierSection";
+import PhilosophySection from "@/components/PhilosophySection";
+import AboutSection from "@/components/AboutSection";
 import Footer from "@/components/Footer";
 
 export default function Home() {
   return (
-    <main className="min-h-screen">
+    <main className="min-h-screen bg-bone">
+      <Header />
       <Hero />
-      <PhilosophySection />
+      <VisionSection />
       <ProductFocusSection />
-      <AtelierSection />
+      <PhilosophySection />
+      <AboutSection />
       <Footer />
     </main>
   );

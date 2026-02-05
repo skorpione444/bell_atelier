@@ -3,11 +3,13 @@
 @tailwind utilities;
 
 @layer base {
-  * {
-    @apply border-border;
-  }
   body {
     @apply bg-bone text-charcoal;
+  }
+  
+  /* Ensure sections are visible by default */
+  section {
+    display: block;
   }
 }
 
