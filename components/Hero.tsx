@@ -125,17 +125,17 @@ export default function Hero({ imageSrc = "/images/xxl_her_2.png" }: HeroProps) 
     <div
       ref={heroRef}
       id="home"
-      className="relative h-screen w-full overflow-hidden pt-20 md:pt-24"
+      className="relative h-screen w-full overflow-hidden"
       style={{
         position: 'relative',
       }}
     >
-      {/* Background image - fills entire page */}
+      {/* Background image - fills entire page including header area */}
       <div
-        className="absolute inset-0 top-20 md:top-24"
+        className="absolute inset-0"
         style={{
           width: '100vw',
-          height: '100%',
+          height: '100vh',
           backgroundImage: `url(${imageSrc})`,
           backgroundSize: "cover",
           backgroundPosition: "center bottom",

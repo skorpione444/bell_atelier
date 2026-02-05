@@ -3,24 +3,16 @@
 import Link from "next/link";
 import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function Header() {
   const [activeSection, setActiveSection] = useState("home");
+  const [isNavVisible, setIsNavVisible] = useState(true);
+  const lastScrollY = useRef(0);
   const { scrollYProgress } = useScroll();
   
-  // Transform scroll progress to opacity and background changes
+  // Transform scroll progress to opacity
   const headerOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0.95]);
-  const headerBackground = useTransform(
-    scrollYProgress,
-    [0, 0.1],
-    ["rgba(188, 182, 154, 0)", "rgba(188, 182, 154, 0.95)"]
-  );
-  const headerBorder = useTransform(
-    scrollYProgress,
-    [0, 0.1],
-    ["rgba(0, 0, 0, 0)", "rgba(0, 0, 0, 0.1)"]
-  );
 
   const navItems = [
     { id: "home", label: "Home", href: "#home" },
@@ -32,9 +24,20 @@ export default function Header() {
 
   useEffect(() => {
     const handleScroll = () => {
+      const currentScrollY = window.scrollY;
       const sections = navItems.map((item) => item.id);
-      const scrollPosition = window.scrollY + 200; // Offset for better detection
+      const scrollPosition = currentScrollY + 200; // Offset for better detection
 
+      // Determine scroll direction
+      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+        // Scrolling down - hide nav
+        setIsNavVisible(false);
+      } else if (currentScrollY < lastScrollY.current) {
+        // Scrolling up - show nav
+        setIsNavVisible(true);
+      }
+
+      // Update active section
       for (let i = sections.length - 1; i >= 0; i--) {
         const section = document.getElementById(sections[i]);
         if (section && section.offsetTop <= scrollPosition) {
@@ -42,9 +45,11 @@ export default function Header() {
           break;
         }
       }
+
+      lastScrollY.current = currentScrollY;
     };
 
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll(); // Check on mount
 
     return () => window.removeEventListener("scroll", handleScroll);
@@ -73,28 +78,40 @@ export default function Header() {
       className="fixed top-0 left-0 right-0 z-50"
       style={{
         opacity: headerOpacity,
-        backgroundColor: headerBackground,
-        borderBottomWidth: "1px",
-        borderBottomColor: headerBorder,
+        backgroundColor: "transparent",
       }}
     >
       <div className="container mx-auto px-4 md:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20 md:h-24">
           {/* Logo */}
           <Link href="#home" onClick={(e) => handleClick(e, "#home")}>
-            <div className="relative h-12 w-12 md:h-16 md:w-16">
+            <div className="relative w-auto h-[77px] md:h-[102px]" style={{ marginLeft: '-20px', marginTop: '40px' }}>
               <Image
-                src="/images/bell-logo-blue.png"
+                src="/images/bell_vertical.png"
                 alt="Bell Atelier Logo"
-                fill
-                className="object-contain"
+                width={77}
+                height={102}
+                className="object-contain h-full w-auto"
                 priority
               />
             </div>
           </Link>
           
           {/* Navigation items */}
-          <nav className="flex items-center gap-4 md:gap-6 lg:gap-8">
+          <motion.nav 
+            className="flex items-center gap-4 md:gap-6 lg:gap-8"
+            animate={{
+              opacity: isNavVisible ? 1 : 0,
+              y: isNavVisible ? 0 : -20,
+            }}
+            transition={{
+              duration: 0.3,
+              ease: "easeInOut",
+            }}
+            style={{
+              pointerEvents: isNavVisible ? "auto" : "none",
+            }}
+          >
             {navItems.map((item, index) => (
               <motion.div
                 key={item.id}
@@ -107,15 +124,19 @@ export default function Header() {
                   onClick={(e) => handleClick(e, item.href)}
                   className={`group relative flex items-center transition-all duration-300 ${
                     activeSection === item.id
-                      ? "text-charcoal"
-                      : "text-charcoal/50 hover:text-charcoal/70"
+                      ? ""
+                      : "opacity-50 hover:opacity-70"
                   }`}
+                  style={{
+                    color: "#001d4a"
+                  }}
                 >
                   {/* Active indicator line */}
                   {activeSection === item.id && (
                     <motion.div
                       layoutId="activeIndicator"
-                      className="absolute -bottom-1 left-0 right-0 h-0.5 bg-charcoal"
+                      className="absolute -bottom-1 left-0 right-0 h-0.5"
+                      style={{ backgroundColor: "#001d4a" }}
                       initial={false}
                       transition={{ type: "spring", stiffness: 500, damping: 30 }}
                     />
@@ -128,7 +149,7 @@ export default function Header() {
                 </Link>
               </motion.div>
             ))}
-          </nav>
+          </motion.nav>
         </div>
       </div>
     </motion.header>
