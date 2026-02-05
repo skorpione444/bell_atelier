@@ -24,7 +24,7 @@ export default function VisionSection() {
       <div className="max-w-7xl mx-auto">
         {/* Subtle section title */}
         <motion.div
-          className="mb-4 text-center"
+          className="mb-0 text-center"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -44,6 +44,7 @@ export default function VisionSection() {
 
         {/* Images Slider */}
         <motion.div
+          className="-mt-2"
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}

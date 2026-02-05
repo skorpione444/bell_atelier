@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Bodoni_Moda, Montserrat } from "next/font/google";
 import "./globals.css";
+import GlitchSync from "@/components/GlitchSync";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -37,6 +38,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${bodoniModa.variable} ${montserrat.variable} font-sans antialiased bg-bone text-charcoal`}
       >
+        <GlitchSync />
         {children}
       </body>
     </html>

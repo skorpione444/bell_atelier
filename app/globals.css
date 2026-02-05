@@ -41,9 +41,10 @@
     display: none;
   }
 
-  /* Glitch flicker effect */
+  /* Glitch flicker effect - synchronized */
   .glitch-flicker {
     animation: glitch-flicker 5s infinite;
+    animation-delay: var(--glitch-sync-delay, 0s);
   }
 
   @keyframes glitch-flicker {
