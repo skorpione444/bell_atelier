@@ -204,7 +204,7 @@ export const ImagesSlider = ({
       )}
 
       {/* Elegant dots indicator */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-50 flex gap-2 pointer-events-none">
+      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-50 flex gap-2 pointer-events-none">
         {images.map((_, idx) => (
           <button
             key={idx}

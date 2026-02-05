@@ -24,7 +24,7 @@ export default function VisionSection() {
       <div className="max-w-7xl mx-auto">
         {/* Subtle section title */}
         <motion.div
-          className="mb-16 text-center"
+          className="mb-4 text-center"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -33,7 +33,10 @@ export default function VisionSection() {
           <h2 
             id="vision-title" 
             data-vision-title="true" 
-            className="font-serif text-4xl md:text-5xl lg:text-6xl text-charcoal/20 tracking-tight"
+            className="font-montserrat font-medium text-[0.6125rem] md:text-[0.7rem] uppercase tracking-[0.35em] whitespace-nowrap inline-block relative glitch-flicker"
+            style={{
+              color: "#001d4a"
+            }}
           >
             Vision
           </h2>

@@ -28,7 +28,7 @@ export default function AtelierSection() {
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
           >
-            <h2 className="font-serif text-5xl md:text-6xl lg:text-7xl text-charcoal leading-tight">
+            <h2 className="font-serif uppercase text-5xl md:text-6xl lg:text-7xl text-charcoal leading-tight">
               The Atelier
             </h2>
             <div className="space-y-4 pt-4">

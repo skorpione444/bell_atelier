@@ -204,14 +204,16 @@ export default function Hero({ imageSrc = "/images/xxl_her_2.png" }: HeroProps) 
         )
       )}
 
-      {/* Text - Atelier and tagline - Fixed position, disappears sooner */}
-      <div className="relative z-10 flex flex-col items-center pt-4 md:pt-6 lg:pt-8" style={{ marginTop: '60px' }}>
+      {/* Text - Atelier and tagline - Positioned at bottom, disappears sooner */}
+      <div className="absolute left-0 right-0 z-10 flex flex-col items-center pb-8 md:pb-12 lg:pb-16" style={{ bottom: '-35px' }}>
         <motion.h1
-          className="font-serif text-4xl md:text-5xl lg:text-6xl mb-4 tracking-tight drop-shadow-sm"
+          className="font-serif uppercase mb-4 drop-shadow-sm text-[1.1025rem] md:text-[1.47rem] lg:text-[1.8375rem]"
           style={{ 
             color: '#bcb69a',
             opacity: textOpacity,
             y: textY,
+            fontFamily: 'var(--font-bodoni-moda), serif',
+            letterSpacing: '0.35em',
           }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -225,6 +227,7 @@ export default function Hero({ imageSrc = "/images/xxl_her_2.png" }: HeroProps) 
             color: '#bcb69a',
             opacity: textOpacity,
             y: textY,
+            letterSpacing: '0.2em',
           }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

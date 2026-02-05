@@ -9,7 +9,7 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
           {/* Brand name */}
           <div>
-            <h3 className="font-serif text-2xl text-charcoal">Bell Atelier</h3>
+            <h3 className="font-serif uppercase text-2xl text-charcoal">Bell Atelier</h3>
           </div>
 
           {/* Navigation links */}

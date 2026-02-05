@@ -85,9 +85,9 @@ export default function Header() {
         <div className="flex items-center justify-between h-20 md:h-24">
           {/* Logo */}
           <Link href="#home" onClick={(e) => handleClick(e, "#home")}>
-            <div className="relative w-auto h-[77px] md:h-[102px]" style={{ marginLeft: '-20px', marginTop: '40px' }}>
+            <div className="relative w-auto h-[77px] md:h-[102px] glitch-flicker" style={{ marginLeft: '-20px', marginTop: '40px' }}>
               <Image
-                src="/images/bell_vertical.png"
+                src="/images/bell_vertical_filled.png"
                 alt="Bell Atelier Logo"
                 width={77}
                 height={102}
@@ -128,7 +128,7 @@ export default function Header() {
                       : "opacity-50 hover:opacity-70"
                   }`}
                   style={{
-                    color: "#001d4a"
+                    color: "#697a87"
                   }}
                 >
                   {/* Active indicator line */}
@@ -136,16 +136,39 @@ export default function Header() {
                     <motion.div
                       layoutId="activeIndicator"
                       className="absolute -bottom-1 left-0 right-0 h-0.5"
-                      style={{ backgroundColor: "#001d4a" }}
+                      style={{ backgroundColor: "#697a87" }}
                       initial={false}
                       transition={{ type: "spring", stiffness: 500, damping: 30 }}
                     />
                   )}
                   
                   {/* Label */}
-                  <span className="font-sans text-sm md:text-base uppercase tracking-wider whitespace-nowrap">
-                    {item.label}
-                  </span>
+                  <motion.span 
+                    className="font-montserrat font-medium text-[0.6125rem] md:text-[0.7rem] uppercase tracking-[0.35em] whitespace-nowrap inline-block"
+                    whileHover="hover"
+                    initial="rest"
+                  >
+                    {item.label.split('').map((char, charIndex) => (
+                      <motion.span
+                        key={charIndex}
+                        className="inline-block"
+                        variants={{
+                          rest: { x: 0, opacity: 1 },
+                          hover: { 
+                            x: [0, -15, 0],
+                            opacity: [1, 0.7, 1],
+                            transition: { 
+                              duration: 0.5,
+                              delay: charIndex * 0.04,
+                              ease: "easeInOut"
+                            }
+                          }
+                        }}
+                      >
+                        {char === ' ' ? '\u00A0' : char}
+                      </motion.span>
+                    ))}
+                  </motion.span>
                 </Link>
               </motion.div>
             ))}

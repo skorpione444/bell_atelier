@@ -99,7 +99,7 @@ export const ImageHoverEffect = ({
       }}
     >
       {/* Base image */}
-      <div className="relative w-full h-full" style={baseColorFilter ? { filter: baseColorFilter } : {}}>
+      <div className="relative w-full h-full" style={{ ...(baseColorFilter ? { filter: baseColorFilter } : {}), opacity: 0.2 }}>
         <NextImage
           src={src}
           alt={alt}
@@ -149,7 +149,7 @@ export const ImageHoverEffect = ({
             <motion.radialGradient
               id={radialMaskId}
               gradientUnits="userSpaceOnUse"
-              r={hovered ? "35%" : "60%"}
+              r={hovered ? "50%" : "85%"}
               initial={{ cx: "50%", cy: "50%" }}
               animate={hovered ? maskPosition : autoPosition}
               transition={hovered 

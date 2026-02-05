@@ -17,7 +17,8 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],
-        serif: ["var(--font-playfair)", "serif"],
+        serif: ["var(--font-bodoni-moda)", "serif"],
+        montserrat: ["var(--font-montserrat)", "sans-serif"],
       },
     },
   },

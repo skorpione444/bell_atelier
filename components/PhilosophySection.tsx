@@ -6,7 +6,7 @@ export default function PhilosophySection() {
   return (
     <Section id="philosophy" className="py-32 px-6 md:px-12 lg:px-24">
       <div className="max-w-4xl mx-auto">
-        <h2 className="font-serif text-5xl md:text-6xl lg:text-7xl text-charcoal mb-12 leading-tight">
+        <h2 className="font-serif uppercase text-5xl md:text-6xl lg:text-7xl text-charcoal mb-12 leading-tight">
           Philosophy
         </h2>
         <div className="space-y-6">
