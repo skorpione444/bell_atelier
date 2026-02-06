@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "@/lib/utils";
 
@@ -27,6 +27,9 @@ export const ImagesSlider = ({
   const [imageErrors, setImageErrors] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [imageDimensions, setImageDimensions] = useState<Map<string, { width: number; height: number }>>(new Map());
+  const [isAutoplayActive, setIsAutoplayActive] = useState(autoplay);
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const touchEndRef = useRef<{ x: number; y: number } | null>(null);
 
   // Calculate next index for preloading
   const nextIndex = direction === "up" 
@@ -44,21 +47,107 @@ export const ImagesSlider = ({
     }
   }, [nextIndex, images, loadedImages]);
 
+  // Navigate to next/previous image
+  const goToNext = useCallback(() => {
+    setCurrentIndex((prevIndex) => {
+      const nextIdx = direction === "up" 
+        ? (prevIndex + 1) % images.length
+        : (prevIndex - 1 + images.length) % images.length;
+      setDirectionState(direction === "up" ? 1 : -1);
+      return nextIdx;
+    });
+  }, [direction, images.length]);
+
+  const goToPrevious = useCallback(() => {
+    setCurrentIndex((prevIndex) => {
+      const prevIdx = direction === "up"
+        ? (prevIndex - 1 + images.length) % images.length
+        : (prevIndex + 1) % images.length;
+      setDirectionState(direction === "up" ? -1 : 1);
+      return prevIdx;
+    });
+  }, [direction, images.length]);
+
+  // Handle manual navigation (pause autoplay, resume after 4 seconds)
+  const handleManualNavigation = useCallback(() => {
+    setIsAutoplayActive(false);
+    setIsLoading(true);
+    
+    // Resume autoplay after 4 seconds of inactivity
+    setTimeout(() => {
+      if (autoplay) {
+        setIsAutoplayActive(true);
+      }
+    }, 4000);
+  }, [autoplay]);
+
+  // Auto-play effect
   useEffect(() => {
-    if (autoplay) {
+    if (isAutoplayActive && autoplay) {
       const interval = setInterval(() => {
-        setCurrentIndex((prevIndex) => {
-          const nextIdx = direction === "up" 
-            ? (prevIndex + 1) % images.length
-            : (prevIndex - 1 + images.length) % images.length;
-          setDirectionState(direction === "up" ? 1 : -1);
-          return nextIdx;
-        });
+        goToNext();
       }, 5000); // Change image every 5 seconds
 
       return () => clearInterval(interval);
     }
-  }, [autoplay, images.length, direction]);
+  }, [isAutoplayActive, autoplay, goToNext]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        goToPrevious();
+        handleManualNavigation();
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        goToNext();
+        handleManualNavigation();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [goToNext, goToPrevious, handleManualNavigation]);
+
+  // Touch/swipe handlers
+  const minSwipeDistance = 50;
+
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    touchEndRef.current = null;
+    touchStartRef.current = {
+      x: e.targetTouches[0].clientX,
+      y: e.targetTouches[0].clientY,
+    };
+  }, []);
+
+  const onTouchMove = useCallback((e: React.TouchEvent) => {
+    touchEndRef.current = {
+      x: e.targetTouches[0].clientX,
+      y: e.targetTouches[0].clientY,
+    };
+  }, []);
+
+  const onTouchEnd = useCallback(() => {
+    if (!touchStartRef.current || !touchEndRef.current) return;
+
+    const distanceX = touchStartRef.current.x - touchEndRef.current.x;
+    const distanceY = touchStartRef.current.y - touchEndRef.current.y;
+    const isLeftSwipe = distanceX > minSwipeDistance;
+    const isRightSwipe = distanceX < -minSwipeDistance;
+    const isVerticalSwipe = Math.abs(distanceY) > Math.abs(distanceX);
+
+    // Only handle horizontal swipes
+    if (!isVerticalSwipe) {
+      if (isLeftSwipe) {
+        goToNext();
+        handleManualNavigation();
+      } else if (isRightSwipe) {
+        goToPrevious();
+        handleManualNavigation();
+      }
+    }
+  }, [goToNext, goToPrevious, handleManualNavigation]);
 
   const slideVariants = {
     enter: (direction: number) => ({
@@ -131,6 +220,9 @@ export const ImagesSlider = ({
         "relative overflow-hidden w-full h-full flex items-center justify-center",
         className
       )}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
     >
       {/* Only render current image */}
       <AnimatePresence custom={directionState}>
@@ -216,8 +308,8 @@ export const ImagesSlider = ({
             )}
             onClick={() => {
               setDirectionState(idx > currentIndex ? 1 : -1);
-              setIsLoading(true);
               setCurrentIndex(idx);
+              handleManualNavigation();
             }}
             aria-label={`Go to slide ${idx + 1}`}
           />

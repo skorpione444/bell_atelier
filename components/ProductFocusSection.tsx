@@ -5,12 +5,87 @@ import Image from "next/image";
 import Link from "next/link";
 import ImageHolder from "./ImageHolder";
 import Section from "./Section";
+import { useState, useEffect, useRef } from "react";
 
 export default function ProductFocusSection() {
   const boots = [
     { id: 1, caption: "SERIES 1", href: "/series-1" },
     { id: 2, caption: "SERIES 2", href: "/series-2" },
   ];
+
+  // Three perspective images
+  // Front (0) = scrolling down, Side (1) = stopped, Back (2) = scrolling up
+  const perspectives = [
+    { id: 0, src: "/images/transparent_rider_branded.png", label: "Front" },
+    { id: 1, src: "/images/horse_side_pers.png", label: "Side" },
+    { id: 2, src: "/images/horse_back_pers.png", label: "Back" },
+  ];
+
+  const [currentIndex, setCurrentIndex] = useState(0); // Start with front view
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Preload all images for smooth transitions
+  useEffect(() => {
+    perspectives.forEach((perspective) => {
+      const link = document.createElement('link');
+      link.rel = 'preload';
+      link.as = 'image';
+      link.href = perspective.src;
+      document.head.appendChild(link);
+    });
+  }, []);
+
+  // Scroll detection logic
+  useEffect(() => {
+    let ticking = false;
+    let lastScrollY = window.scrollY;
+
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+          const scrollDelta = currentScrollY - lastScrollY;
+
+          // Clear existing timeout
+          if (scrollTimeoutRef.current) {
+            clearTimeout(scrollTimeoutRef.current);
+          }
+
+          // Determine scroll direction
+          if (Math.abs(scrollDelta) > 1) {
+            // User is actively scrolling
+            if (scrollDelta > 0) {
+              // Scrolling down → Front view
+              setCurrentIndex(0);
+            } else {
+              // Scrolling up → Back view
+              setCurrentIndex(2);
+            }
+          }
+
+          // Set timeout to detect when scrolling stops
+          // Longer delay to keep front/back views visible longer before switching to side view
+          scrollTimeoutRef.current = setTimeout(() => {
+            setCurrentIndex(1); // Side view when stopped
+          }, 3000); // 3000ms (3 seconds) delay after scroll stops
+
+          lastScrollY = currentScrollY;
+          ticking = false;
+        });
+
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return (
     <Section id="collection" className="py-32 px-6 md:px-12 lg:px-24">
@@ -52,22 +127,31 @@ export default function ProductFocusSection() {
             </motion.div>
           </Link>
 
-          {/* Image in between */}
+          {/* Scroll-based Image Container */}
           <motion.div
-            className="flex-shrink-0 flex items-center justify-center"
+            className="flex-shrink-0 flex items-center justify-center relative"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
+            style={{ width: "400px", height: "400px" }}
           >
-            <Image
-              src="/images/transparent_rider_branded.png"
-              alt="Rider Branded"
-              width={400}
-              height={400}
-              className="object-contain"
-              style={{ maxWidth: "400px", height: "auto" }}
-            />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Image
+                src={perspectives[currentIndex].src}
+                alt={`Rider ${perspectives[currentIndex].label}`}
+                width={400}
+                height={400}
+                className="object-contain"
+                style={{ 
+                  maxWidth: "400px", 
+                  maxHeight: "400px",
+                  width: "auto",
+                  height: "auto"
+                }}
+                priority={currentIndex === 0}
+              />
+            </div>
           </motion.div>
 
           {/* SERIES 2 Card */}
@@ -107,22 +191,31 @@ export default function ProductFocusSection() {
             </motion.div>
           </Link>
 
-          {/* Image in between */}
+          {/* Scroll-based Image Container - Mobile */}
           <motion.div
-            className="flex items-center justify-center py-8"
+            className="flex items-center justify-center py-8 relative"
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
+            style={{ width: "100%", minHeight: "300px" }}
           >
-            <Image
-              src="/images/transparent_rider_branded.png"
-              alt="Rider Branded"
-              width={300}
-              height={300}
-              className="object-contain"
-              style={{ maxWidth: "300px", height: "auto" }}
-            />
+            <div className="flex items-center justify-center">
+              <Image
+                src={perspectives[currentIndex].src}
+                alt={`Rider ${perspectives[currentIndex].label}`}
+                width={300}
+                height={300}
+                className="object-contain"
+                style={{ 
+                  maxWidth: "300px", 
+                  maxHeight: "300px",
+                  width: "auto",
+                  height: "auto"
+                }}
+                priority={currentIndex === 0}
+              />
+            </div>
           </motion.div>
 
           {/* SERIES 2 Card */}

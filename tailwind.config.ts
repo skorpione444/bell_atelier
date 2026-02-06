@@ -11,7 +11,7 @@ const config: Config = {
       colors: {
         sand: "#E8DCC6",
         bone: "#F5F1E8",
-        beige: "#D4C4A8",
+        beige: "#f6f4ed",
         espresso: "#3A2E1F",
         charcoal: "#2C2C2C",
       },

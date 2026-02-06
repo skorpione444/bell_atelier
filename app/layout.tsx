@@ -18,7 +18,7 @@ const bodoniModa = Bodoni_Moda({
 
 const montserrat = Montserrat({
   subsets: ["latin"],
-  weight: ["500"],
+  weight: ["300", "500"],
   variable: "--font-montserrat",
   display: "swap",
 });
@@ -36,7 +36,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body
-        className={`${inter.variable} ${bodoniModa.variable} ${montserrat.variable} font-sans antialiased bg-bone text-charcoal`}
+        className={`${inter.variable} ${bodoniModa.variable} ${montserrat.variable} font-sans antialiased bg-beige text-charcoal`}
       >
         <GlitchSync />
         {children}

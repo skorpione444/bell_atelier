@@ -4,20 +4,11 @@ import { motion } from "motion/react";
 import Section from "./Section";
 import { ImagesSlider } from "./ui/images-slider";
 
-export default function VisionSection() {
-  // Images from the vision folder - updated list
-  const images = [
-    "/images/vision/vision_img.png",
-    "/images/vision/vision_img_2.png",
-    "/images/vision/horse_nyc.png",
-    "/images/vision/ll (3).png",
-    "/images/vision/ll (4).png",
-    "/images/vision/ll (5).png",
-    "/images/vision/ChatGPT Image Jan 28, 2026, 05_23_52 PM.png",
-    "/images/vision/Pitch Deck - BELL.png",
-    "/images/vision/Pitch Deck - BELL (1).png",
-    "/images/vision/large_new_hero_image.png",
-  ];
+interface VisionSectionProps {
+  images: string[];
+}
+
+export default function VisionSection({ images }: VisionSectionProps) {
 
   return (
     <Section id="vision" className="py-32 px-6 md:px-12 lg:px-24">

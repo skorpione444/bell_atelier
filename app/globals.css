@@ -4,7 +4,8 @@
 
 @layer base {
   body {
-    @apply bg-bone text-charcoal;
+    @apply bg-beige text-charcoal;
+    background-color: #f6f4ed;
   }
   
   /* Ensure sections are visible by default */

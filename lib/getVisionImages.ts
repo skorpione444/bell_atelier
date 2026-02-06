@@ -1,0 +1,38 @@
+import fs from 'fs';
+import path from 'path';
+
+/**
+ * Automatically reads all image files from the vision folder
+ * Returns an array of image paths relative to the public folder
+ */
+export function getVisionImages(): string[] {
+  try {
+    const visionFolderPath = path.join(process.cwd(), 'public', 'images', 'vision');
+    
+    // Check if folder exists
+    if (!fs.existsSync(visionFolderPath)) {
+      console.warn('Vision folder not found:', visionFolderPath);
+      return [];
+    }
+
+    // Read all files in the vision folder
+    const files = fs.readdirSync(visionFolderPath);
+    
+    // Filter for image files (common image extensions)
+    const imageExtensions = ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg'];
+    const imageFiles = files.filter(file => {
+      const ext = path.extname(file).toLowerCase();
+      return imageExtensions.includes(ext);
+    });
+
+    // Sort files alphabetically for consistent ordering
+    imageFiles.sort();
+
+    // Return paths relative to public folder (as used in Next.js)
+    return imageFiles.map(file => `/images/vision/${file}`);
+  } catch (error) {
+    console.error('Error reading vision images:', error);
+    return [];
+  }
+}
+
