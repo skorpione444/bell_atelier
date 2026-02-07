@@ -28,7 +28,8 @@ export default function GlitchSync() {
       if (visionAnimations.length === 0) return;
 
       const visionAnimation = visionAnimations[0];
-      const currentTime = visionAnimation.currentTime || 0;
+      const currentTime = visionAnimation.currentTime;
+      if (currentTime === null || typeof currentTime !== 'number') return;
       const syncTime = currentTime % animationDuration;
 
       // Apply the same animation time to all other headings

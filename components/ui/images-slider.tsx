@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "motion/react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 export const ImagesSlider = ({
@@ -31,21 +32,35 @@ export const ImagesSlider = ({
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   const touchEndRef = useRef<{ x: number; y: number } | null>(null);
 
-  // Calculate next index for preloading
+  // Calculate next index for preloading (only preload next 1-2 images)
   const nextIndex = direction === "up" 
     ? (currentIndex + 1) % images.length
     : (currentIndex - 1 + images.length) % images.length;
+  const nextNextIndex = direction === "up"
+    ? (currentIndex + 2) % images.length
+    : (currentIndex - 2 + images.length) % images.length;
 
-  // Preload next image using native img element
+  // Progressive preloading: only preload next 1-2 images, not all
   useEffect(() => {
-    if (typeof window !== 'undefined' && images[nextIndex] && !loadedImages.has(images[nextIndex])) {
-      const img = new window.Image();
-      img.src = images[nextIndex];
-      img.onload = () => {
-        setLoadedImages(prev => new Set(prev).add(images[nextIndex]));
-      };
+    if (typeof window !== 'undefined') {
+      // Preload next image
+      if (images[nextIndex] && !loadedImages.has(images[nextIndex])) {
+        const img = new window.Image();
+        img.src = images[nextIndex];
+        img.onload = () => {
+          setLoadedImages(prev => new Set(prev).add(images[nextIndex]));
+        };
+      }
+      // Preload next-next image only if current image is loaded (progressive)
+      if (loadedImages.has(images[currentIndex]) && images[nextNextIndex] && !loadedImages.has(images[nextNextIndex])) {
+        const img = new window.Image();
+        img.src = images[nextNextIndex];
+        img.onload = () => {
+          setLoadedImages(prev => new Set(prev).add(images[nextNextIndex]));
+        };
+      }
     }
-  }, [nextIndex, images, loadedImages]);
+  }, [currentIndex, nextIndex, nextNextIndex, images, loadedImages]);
 
   // Navigate to next/previous image
   const goToNext = useCallback(() => {
@@ -164,19 +179,6 @@ export const ImagesSlider = ({
     }),
   };
 
-  const handleImageLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
-    const img = e.currentTarget;
-    const src = img.src;
-    const width = img.naturalWidth;
-    const height = img.naturalHeight;
-    
-    // Store dimensions using the original image path (currentImage) as key
-    const currentImagePath = images[currentIndex];
-    setImageDimensions(prev => new Map(prev).set(currentImagePath, { width, height }));
-    setLoadedImages(prev => new Set(prev).add(currentImagePath));
-    setIsLoading(false);
-  };
-
   const handleImageError = (src: string) => {
     setImageErrors(prev => new Set(prev).add(src));
   };
@@ -245,28 +247,45 @@ export const ImagesSlider = ({
               </div>
             )}
             {!hasImageError ? (
-              <img
-                src={currentImage}
-                alt={`Slide ${currentIndex + 1}`}
-                className={`object-contain w-full h-full max-w-full max-h-full transition-opacity duration-300 ${
+              <div 
+                className={`relative w-full h-full transition-opacity duration-300 ${
                   isLoading && currentIndex === 0 ? 'opacity-0' : 'opacity-100'
                 }`}
                 style={{ 
-                  objectFit: "contain",
-                  objectPosition: needsTopCrop ? 'center' : needsRightCrop ? 'left center' : needsTopBottomCrop ? 'center' : 'center',
                   transform: `scale(${getImageScale()})`,
                   transformOrigin: 'center',
                   clipPath: needsTopCrop ? 'inset(15% 0 0 0)' : needsRightCrop ? 'inset(0 20% 0 0)' : needsTopBottomCrop ? 'inset(8% 0 8% 0)' : 'none',
                   transition: 'transform 0.3s ease, clip-path 0.3s ease'
                 }}
-                onLoad={handleImageLoad}
-                onError={() => {
-                  handleImageError(currentImage);
-                  setIsLoading(false);
-                }}
-                loading={currentIndex === 0 ? "eager" : "lazy"}
-                decoding="async"
-              />
+              >
+                <Image
+                  src={currentImage}
+                  alt={`Slide ${currentIndex + 1}`}
+                  fill
+                  className="object-contain"
+                  style={{ 
+                    objectPosition: needsTopCrop ? 'center' : needsRightCrop ? 'left center' : needsTopBottomCrop ? 'center' : 'center',
+                  }}
+                  onLoadingComplete={(img) => {
+                    const width = img.naturalWidth || 0;
+                    const height = img.naturalHeight || 0;
+                    const currentImagePath = images[currentIndex];
+                    if (width > 0 && height > 0) {
+                      setImageDimensions(prev => new Map(prev).set(currentImagePath, { width, height }));
+                    }
+                    setLoadedImages(prev => new Set(prev).add(currentImagePath));
+                    setIsLoading(false);
+                  }}
+                  onError={() => {
+                    handleImageError(currentImage);
+                    setIsLoading(false);
+                  }}
+                  priority={currentIndex === 0}
+                  loading={currentIndex <= 2 ? undefined : "lazy"}
+                  quality={85}
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 90vw, 80vw"
+                />
+              </div>
             ) : (
               <div className="w-full h-full flex items-center justify-center text-charcoal/40">
                 <p>Image failed to load</p>

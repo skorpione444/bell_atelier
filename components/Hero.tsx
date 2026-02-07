@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useState } from "react";
 import { motion, useScroll, useTransform, useMotionValueEvent } from "framer-motion";
+import Image from "next/image";
 import { ImageHoverEffect } from "@/components/ui/image-hover-effect";
 
 interface HeroProps {
@@ -16,6 +17,7 @@ export default function Hero({ imageSrc = "/images/xxl_her_2.png" }: HeroProps) 
   const [isFixed, setIsFixed] = useState(true);
   const [relativeTop, setRelativeTop] = useState<number | null>(null);
   const [isReady, setIsReady] = useState(false);
+  const [imageError, setImageError] = useState(false);
   
   const { scrollYProgress } = useScroll({
     target: heroRef,
@@ -25,34 +27,15 @@ export default function Hero({ imageSrc = "/images/xxl_her_2.png" }: HeroProps) 
   // Track window scroll position
   const { scrollY } = useScroll();
 
-  // Scroll to top on page load and add delay before enabling logo movement
+  // Simplified initialization - removed unnecessary interval overhead
   useEffect(() => {
     // Force scroll to top immediately
     window.scrollTo(0, 0);
     
-    let keepAtTopInterval: NodeJS.Timeout | null = null;
-    
-    // Keep scroll at top during initialization
-    keepAtTopInterval = setInterval(() => {
-      if (window.scrollY !== 0) {
-        window.scrollTo(0, 0);
-      }
-    }, 50);
-    
-    // Wait for page to fully load and measure position before showing logo
+    // Measure position and mark as ready - minimal delay for DOM to settle
     const measureAndReady = () => {
-      // Clear the interval first to allow scrolling
-      if (keepAtTopInterval) {
-        clearInterval(keepAtTopInterval);
-        keepAtTopInterval = null;
-      }
-      
-      // Ensure scroll is at top one final time
-      window.scrollTo(0, 0);
-      
-      // Small delay to ensure DOM is settled
-      setTimeout(() => {
-        // Measure initial position
+      // Use requestAnimationFrame for better performance
+      requestAnimationFrame(() => {
         if (measureRef.current && window.scrollY === 0) {
           const rect = measureRef.current.getBoundingClientRect();
           setInitialLogoTop(rect.top);
@@ -62,17 +45,14 @@ export default function Hero({ imageSrc = "/images/xxl_her_2.png" }: HeroProps) 
         setIsReady(true);
         const currentScroll = window.scrollY;
         setIsFixed(currentScroll < 350);
-      }, 100);
+      });
     };
     
-    // Wait longer to ensure everything is settled
-    const timer = setTimeout(measureAndReady, 800); // 800ms delay
+    // Minimal delay - just enough for DOM to be ready
+    const timer = setTimeout(measureAndReady, 0);
     
     return () => {
       clearTimeout(timer);
-      if (keepAtTopInterval) {
-        clearInterval(keepAtTopInterval);
-      }
     };
   }, []);
 
@@ -130,19 +110,29 @@ export default function Hero({ imageSrc = "/images/xxl_her_2.png" }: HeroProps) 
         position: 'relative',
       }}
     >
-      {/* Background image - fills entire page including header area */}
-      <div
-        className="absolute inset-0"
-        style={{
-          width: '100vw',
-          height: '100vh',
-          backgroundImage: `url(${imageSrc})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center bottom",
-          backgroundRepeat: "no-repeat",
-          zIndex: 0,
-        }}
-      >
+      {/* Background image - Using Next.js Image for optimization */}
+      <div className="absolute inset-0 w-full h-full z-0">
+        {!imageError ? (
+          <Image
+            src={imageSrc}
+            alt="Hero background"
+            fill
+            priority
+            quality={85}
+            className="object-cover object-center-bottom"
+            sizes="100vw"
+            onError={() => {
+              console.error("Failed to load hero image:", imageSrc);
+              setImageError(true);
+            }}
+            style={{
+              objectPosition: "center bottom",
+            }}
+          />
+        ) : (
+          // Fallback background color if image fails to load
+          <div className="w-full h-full bg-gradient-to-b from-slate-800 to-slate-900" />
+        )}
         {/* Subtle overlay for text readability */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/5 pointer-events-none" />
       </div>
@@ -170,7 +160,7 @@ export default function Hero({ imageSrc = "/images/xxl_her_2.png" }: HeroProps) 
             }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+            transition={{ duration: 1, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
             <div className="relative h-[10.12rem] w-[10.12rem] md:h-[12.65rem] md:w-[12.65rem] lg:h-[15.18rem] lg:w-[15.18rem] flex items-center justify-center -mt-4 md:-mt-6 lg:-mt-8">
               <ImageHoverEffect 
@@ -190,7 +180,7 @@ export default function Hero({ imageSrc = "/images/xxl_her_2.png" }: HeroProps) 
             }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
+            transition={{ duration: 1, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
             <div className="relative h-[10.12rem] w-[10.12rem] md:h-[12.65rem] md:w-[12.65rem] lg:h-[15.18rem] lg:w-[15.18rem] flex items-center justify-center -mt-4 md:-mt-6 lg:-mt-8">
               <ImageHoverEffect 
@@ -217,7 +207,7 @@ export default function Hero({ imageSrc = "/images/xxl_her_2.png" }: HeroProps) 
           }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+          transition={{ duration: 1, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
           Atelier
         </motion.h1>
@@ -231,7 +221,7 @@ export default function Hero({ imageSrc = "/images/xxl_her_2.png" }: HeroProps) 
           }}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
+          transition={{ duration: 1, delay: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
           Crafted for the modern West
         </motion.p>

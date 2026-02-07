@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { useState } from "react";
 
 interface ImageHolderProps {
@@ -34,20 +35,29 @@ export default function ImageHolder({
       transition={{ duration: 0.4, ease: "easeOut" }}
     >
       {src ? (
-        <motion.img
-          src={src}
-          alt={alt}
-          className="w-full h-full object-cover"
+        <motion.div
+          className="relative w-full h-full"
           animate={{
             opacity: isHovered ? 0.95 : 1,
             scale: isHovered ? 1.05 : 1,
           }}
           transition={{ duration: 0.4 }}
-        />
+        >
+          <Image
+            src={src}
+            alt={alt}
+            fill
+            className="object-cover"
+            quality={85}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        </motion.div>
       ) : (
         <div className="w-full h-full bg-gradient-to-br from-sand via-beige to-sand/50" />
       )}
     </motion.div>
   );
 }
+
+
 

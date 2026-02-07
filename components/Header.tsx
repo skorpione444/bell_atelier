@@ -26,73 +26,87 @@ export default function Header() {
   ];
 
   useEffect(() => {
+    let ticking = false;
+    let rafId: number | null = null;
+
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      const sections = navItems.map((item) => item.id);
-      const scrollPosition = currentScrollY + 200; // Offset for better detection
+      if (!ticking) {
+        rafId = window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+          const sections = navItems.map((item) => item.id);
+          const scrollPosition = currentScrollY + 200; // Offset for better detection
 
-      // Determine scroll direction
-      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
-        // Scrolling down - hide nav
-        setIsNavVisible(false);
-      } else if (currentScrollY < lastScrollY.current) {
-        // Scrolling up - show nav
-        setIsNavVisible(true);
-      }
-
-      // Update active section
-      for (let i = sections.length - 1; i >= 0; i--) {
-        const section = document.getElementById(sections[i]);
-        if (section && section.offsetTop <= scrollPosition) {
-          setActiveSection(sections[i]);
-          break;
-        }
-      }
-
-      // Calculate mask position for portal effect
-      if (logoRef.current) {
-        const logoRect = logoRef.current.getBoundingClientRect();
-        const visionSection = document.getElementById("vision");
-        
-        if (visionSection) {
-          const visionRect = visionSection.getBoundingClientRect();
-          const logoBottom = logoRect.bottom;
-          const logoTop = logoRect.top;
-          const visionTop = visionRect.top;
-          
-          // Calculate how much of the logo has entered the vision section
-          if (logoBottom <= visionTop) {
-            // Logo is completely above vision section - all blue
-            hasEnteredVisionRef.current = false; // Reset when scrolling back up
-            setMaskPosition(100);
-          } else if (logoTop >= visionTop) {
-            // Logo's top has crossed into vision section - all beige (stays beige)
-            hasEnteredVisionRef.current = true;
-            setMaskPosition(0);
-          } else if (logoBottom > visionTop) {
-            // Logo is partially in vision section - calculate transition
-            hasEnteredVisionRef.current = true;
-            // Only the bottom part is in vision section
-            const logoHeight = logoRect.height;
-            const overlap = logoBottom - visionTop;
-            const percentageInVision = (overlap / logoHeight) * 100;
-            // maskPosition represents where the gradient transition starts from top
-            // 100 = all blue, 0 = all beige
-            setMaskPosition(Math.max(0, 100 - percentageInVision));
+          // Determine scroll direction
+          if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+            // Scrolling down - hide nav
+            setIsNavVisible(false);
+          } else if (currentScrollY < lastScrollY.current) {
+            // Scrolling up - show nav
+            setIsNavVisible(true);
           }
-        } else {
-          // Vision section not found, keep it blue
-          setMaskPosition(100);
-        }
-      }
 
-      lastScrollY.current = currentScrollY;
+          // Update active section
+          for (let i = sections.length - 1; i >= 0; i--) {
+            const section = document.getElementById(sections[i]);
+            if (section && section.offsetTop <= scrollPosition) {
+              setActiveSection(sections[i]);
+              break;
+            }
+          }
+
+          // Calculate mask position for portal effect
+          if (logoRef.current) {
+            const logoRect = logoRef.current.getBoundingClientRect();
+            const visionSection = document.getElementById("vision");
+            
+            if (visionSection) {
+              const visionRect = visionSection.getBoundingClientRect();
+              const logoBottom = logoRect.bottom;
+              const logoTop = logoRect.top;
+              const visionTop = visionRect.top;
+              
+              // Calculate how much of the logo has entered the vision section
+              if (logoBottom <= visionTop) {
+                // Logo is completely above vision section - all blue
+                hasEnteredVisionRef.current = false; // Reset when scrolling back up
+                setMaskPosition(100);
+              } else if (logoTop >= visionTop) {
+                // Logo's top has crossed into vision section - all beige (stays beige)
+                hasEnteredVisionRef.current = true;
+                setMaskPosition(0);
+              } else if (logoBottom > visionTop) {
+                // Logo is partially in vision section - calculate transition
+                hasEnteredVisionRef.current = true;
+                // Only the bottom part is in vision section
+                const logoHeight = logoRect.height;
+                const overlap = logoBottom - visionTop;
+                const percentageInVision = (overlap / logoHeight) * 100;
+                // maskPosition represents where the gradient transition starts from top
+                // 100 = all blue, 0 = all beige
+                setMaskPosition(Math.max(0, 100 - percentageInVision));
+              }
+            } else {
+              // Vision section not found, keep it blue
+              setMaskPosition(100);
+            }
+          }
+
+          lastScrollY.current = currentScrollY;
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     handleScroll(); // Check on mount
 
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (rafId !== null) {
+        window.cancelAnimationFrame(rafId);
+      }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

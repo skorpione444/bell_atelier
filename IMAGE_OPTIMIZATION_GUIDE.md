@@ -71,3 +71,5 @@ The slider now:
 - Has error handling
 - Uses lazy loading for non-first images
 
+
+

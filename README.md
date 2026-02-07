@@ -25,3 +25,5 @@ Open [http://localhost:3000](http://localhost:3000) to view the site.
 - `/components` - Reusable React components
 - `/lib` - Utility functions and helpers
 
+
+

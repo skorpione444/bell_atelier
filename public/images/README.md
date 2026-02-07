@@ -21,3 +21,5 @@ The image will automatically:
 - Respond to mouse movement
 - Maintain aspect ratio with `background-size: cover`
 
+
+

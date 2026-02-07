@@ -30,3 +30,5 @@ hero.png is not showing as the background of the hero section
 3. Are there any console errors?
 4. What are the computed styles for the background div?
 
+
+

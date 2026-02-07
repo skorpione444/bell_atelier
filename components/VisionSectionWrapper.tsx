@@ -11,3 +11,5 @@ export default function VisionSectionWrapper() {
   return <VisionSection images={images} />;
 }
 
+
+

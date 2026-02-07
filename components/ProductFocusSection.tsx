@@ -13,27 +13,15 @@ export default function ProductFocusSection() {
     { id: 2, caption: "SERIES 2", href: "/series-2" },
   ];
 
-  // Three perspective images
-  // Front (0) = scrolling down, Side (1) = stopped, Back (2) = scrolling up
+  // Two perspective images
+  // Front (0) = scrolling down or at rest, Back (1) = scrolling up
   const perspectives = [
     { id: 0, src: "/images/transparent_rider_branded.png", label: "Front" },
-    { id: 1, src: "/images/horse_side_pers.png", label: "Side" },
-    { id: 2, src: "/images/horse_back_pers.png", label: "Back" },
+    { id: 1, src: "/images/horse_back_pers.png", label: "Back" },
   ];
 
   const [currentIndex, setCurrentIndex] = useState(0); // Start with front view
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Preload all images for smooth transitions
-  useEffect(() => {
-    perspectives.forEach((perspective) => {
-      const link = document.createElement('link');
-      link.rel = 'preload';
-      link.as = 'image';
-      link.href = perspective.src;
-      document.head.appendChild(link);
-    });
-  }, []);
 
   // Scroll detection logic
   useEffect(() => {
@@ -59,14 +47,14 @@ export default function ProductFocusSection() {
               setCurrentIndex(0);
             } else {
               // Scrolling up → Back view
-              setCurrentIndex(2);
+              setCurrentIndex(1);
             }
           }
 
           // Set timeout to detect when scrolling stops
-          // Longer delay to keep front/back views visible longer before switching to side view
+          // When scrolling stops, show front view
           scrollTimeoutRef.current = setTimeout(() => {
-            setCurrentIndex(1); // Side view when stopped
+            setCurrentIndex(0); // Front view when stopped
           }, 3000); // 3000ms (3 seconds) delay after scroll stops
 
           lastScrollY = currentScrollY;
@@ -214,6 +202,7 @@ export default function ProductFocusSection() {
                   height: "auto"
                 }}
                 priority={currentIndex === 0}
+                loading={currentIndex === 0 ? undefined : "lazy"}
               />
             </div>
           </motion.div>
