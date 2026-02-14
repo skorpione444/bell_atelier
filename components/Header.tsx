@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function Header() {
   const [activeSection, setActiveSection] = useState("home");
@@ -13,6 +14,8 @@ export default function Header() {
   const [maskPosition, setMaskPosition] = useState(100); // Percentage from top (100 = all blue)
   const hasEnteredVisionRef = useRef(false); // Track if logo has ever entered vision section
   const { scrollYProgress } = useScroll();
+  const pathname = usePathname();
+  const router = useRouter();
   
   // Transform scroll progress to opacity
   const headerOpacity = useTransform(scrollYProgress, [0, 0.1], [1, 0.95]);
@@ -110,9 +113,42 @@ export default function Header() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Handle scrolling to section when navigating from another page with hash
+  useEffect(() => {
+    if (pathname === "/" && typeof window !== "undefined") {
+      const hash = window.location.hash;
+      if (hash) {
+        const targetId = hash.replace("#", "");
+        // Wait for page to fully load before scrolling
+        setTimeout(() => {
+          const element = document.getElementById(targetId);
+          if (element) {
+            const headerOffset = 80;
+            const elementPosition = element.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: "smooth",
+            });
+          }
+        }, 100);
+      }
+    }
+  }, [pathname]);
+
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
     e.preventDefault();
     const targetId = href.replace("#", "");
+    
+    // If we're not on the home page, navigate to home page with hash
+    if (pathname !== "/") {
+      // Use window.location for reliable hash navigation across pages
+      window.location.href = `/${href}`;
+      return;
+    }
+    
+    // If we're on the home page, scroll to the section
     const element = document.getElementById(targetId);
     
     if (element) {
