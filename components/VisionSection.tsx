@@ -5,6 +5,47 @@ import { motion } from "motion/react";
 import Section from "./Section";
 import Image from "next/image";
 
+/**
+ * Samples the center of an image to determine if it's dark or light.
+ * Returns true if the image center is dark (needs light text).
+ */
+function analyzeImageBrightness(src: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    const img = new window.Image();
+    img.crossOrigin = "anonymous";
+    img.src = src;
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+      if (!ctx) { resolve(false); return; }
+
+      // Sample a horizontal strip from the vertical center of the image
+      const sampleWidth = Math.min(img.width, 200);
+      const sampleHeight = Math.min(img.height, 60);
+      canvas.width = sampleWidth;
+      canvas.height = sampleHeight;
+
+      const sx = (img.width - sampleWidth) / 2;
+      const sy = (img.height - sampleHeight) / 2;
+      ctx.drawImage(img, sx, sy, sampleWidth, sampleHeight, 0, 0, sampleWidth, sampleHeight);
+
+      const data = ctx.getImageData(0, 0, sampleWidth, sampleHeight).data;
+      let totalBrightness = 0;
+      const pixelCount = data.length / 4;
+
+      for (let i = 0; i < data.length; i += 4) {
+        // Perceived brightness (ITU-R BT.601)
+        totalBrightness += data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+      }
+
+      const avgBrightness = totalBrightness / pixelCount;
+      // Dark image = average brightness below 128 (out of 255)
+      resolve(avgBrightness < 128);
+    };
+    img.onerror = () => resolve(false);
+  });
+}
+
 interface VisionSectionProps {
   images: string[];
 }
@@ -14,15 +55,25 @@ export default function VisionSection({ images }: VisionSectionProps) {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const [isInView, setIsInView] = useState(false);
+  const [imageDarkness, setImageDarkness] = useState<Map<number, boolean>>(new Map());
 
-  // Preload images
+  // Preload images and analyze their brightness
   useEffect(() => {
-    images.forEach((src) => {
+    images.forEach((src, index) => {
       const img = new window.Image();
       img.src = src;
       img.onload = () => {
         setLoadedImages((prev) => new Set(prev).add(src));
       };
+
+      // Analyze brightness for text color adaptation
+      analyzeImageBrightness(src).then((isDark) => {
+        setImageDarkness((prev) => {
+          const next = new Map(prev);
+          next.set(index, isDark);
+          return next;
+        });
+      });
     });
   }, [images]);
 
@@ -134,6 +185,24 @@ export default function VisionSection({ images }: VisionSectionProps) {
     return translateY;
   };
 
+  // Determine which image currently covers the center of the viewport
+  // (where the "Vision" text sits). The last image with translateY <= 50
+  // is the one visually on top at the center, since later images have higher z-index.
+  const getDominantImageIndex = (): number => {
+    let dominantIndex = 0;
+    for (let i = 0; i < images.length; i++) {
+      const ty = getImageTransform(i);
+      if (ty <= 50) {
+        dominantIndex = i;
+      }
+    }
+    return dominantIndex;
+  };
+
+  const dominantIndex = getDominantImageIndex();
+  const isDarkBackground = imageDarkness.get(dominantIndex) ?? false;
+  const visionTextColor = isDarkBackground ? "#f6f4ed" : "#001d4a";
+
   return (
     <Section id="vision" className="relative !py-0 !m-0">
       {/* Vision Header - Only visible when section is in view, centered on screen */}
@@ -152,7 +221,8 @@ export default function VisionSection({ images }: VisionSectionProps) {
             data-vision-title="true"
             className="font-montserrat font-medium text-[0.6125rem] md:text-[0.7rem] uppercase tracking-[0.35em] whitespace-nowrap inline-block relative glitch-flicker"
             style={{
-              color: "#001d4a",
+              color: visionTextColor,
+              transition: "color 0.5s ease-in-out",
             }}
           >
             Vision

@@ -3,13 +3,12 @@
 import { useRef, useEffect, useState } from "react";
 import { motion, useScroll, useTransform, useMotionValueEvent } from "framer-motion";
 import Image from "next/image";
-import { ImageHoverEffect } from "@/components/ui/image-hover-effect";
 
 interface HeroProps {
   imageSrc?: string;
 }
 
-export default function Hero({ imageSrc = "/images/xxl_her_2.png" }: HeroProps) {
+export default function Hero({ imageSrc = "/images/Landing image (1).png" }: HeroProps) {
   const heroRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLDivElement>(null);
   const measureRef = useRef<HTMLDivElement>(null);
@@ -163,12 +162,22 @@ export default function Hero({ imageSrc = "/images/xxl_her_2.png" }: HeroProps) 
             transition={{ duration: 1, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
             <div className="relative h-[10.12rem] w-[10.12rem] md:h-[12.65rem] md:w-[12.65rem] lg:h-[15.18rem] lg:w-[15.18rem] flex items-center justify-center -mt-4 md:-mt-6 lg:-mt-8">
-              <ImageHoverEffect 
-                src="/images/bell-logo-blue.png" 
-                alt="Bell Atelier Logo" 
-                duration={0.15}
-                className="w-full h-full"
-              />
+              <div
+                className="logo-shine-container w-full h-full"
+                style={{ '--logo-mask': "url('/images/bell_logo_beige.png')" } as React.CSSProperties}
+              >
+                <Image
+                  src="/images/bell_logo_beige.png"
+                  alt="Bell Atelier Logo"
+                  fill
+                  className="object-contain"
+                  priority
+                />
+                <div className="logo-shine-mask">
+                  <div className="logo-shine-streak" />
+                  <div className="logo-shine-depth" />
+                </div>
+              </div>
             </div>
           </motion.div>
         ) : (
@@ -183,34 +192,29 @@ export default function Hero({ imageSrc = "/images/xxl_her_2.png" }: HeroProps) 
             transition={{ duration: 1, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
             <div className="relative h-[10.12rem] w-[10.12rem] md:h-[12.65rem] md:w-[12.65rem] lg:h-[15.18rem] lg:w-[15.18rem] flex items-center justify-center -mt-4 md:-mt-6 lg:-mt-8">
-              <ImageHoverEffect 
-                src="/images/bell-logo-blue.png" 
-                alt="Bell Atelier Logo" 
-                duration={0.15}
-                className="w-full h-full"
-              />
+              <div
+                className="logo-shine-container w-full h-full"
+                style={{ '--logo-mask': "url('/images/bell_logo_beige.png')" } as React.CSSProperties}
+              >
+                <Image
+                  src="/images/bell_logo_beige.png"
+                  alt="Bell Atelier Logo"
+                  fill
+                  className="object-contain"
+                  priority
+                />
+                <div className="logo-shine-mask">
+                  <div className="logo-shine-streak" />
+                  <div className="logo-shine-depth" />
+                </div>
+              </div>
             </div>
           </motion.div>
         )
       )}
 
-      {/* Text - Atelier and tagline - Positioned at bottom, disappears sooner */}
+      {/* Text - tagline - Positioned at bottom, disappears sooner */}
       <div className="absolute left-0 right-0 z-10 flex flex-col items-center pb-8 md:pb-12 lg:pb-16" style={{ bottom: '-35px' }}>
-        <motion.h1
-          className="font-serif uppercase mb-4 drop-shadow-sm text-[1.1025rem] md:text-[1.47rem] lg:text-[1.8375rem]"
-          style={{ 
-            color: '#bcb69a',
-            opacity: textOpacity,
-            y: textY,
-            fontFamily: 'var(--font-bodoni-moda), serif',
-            letterSpacing: '0.35em',
-          }}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-        >
-          Atelier
-        </motion.h1>
         <motion.p
           className="font-sans text-sm md:text-base tracking-widest uppercase drop-shadow-sm"
           style={{ 

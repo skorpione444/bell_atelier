@@ -10,7 +10,7 @@ const VisionSectionWrapper = dynamic(() => import("@/components/VisionSectionWra
   ssr: true,
 });
 
-const ProductFocusSection = dynamic(() => import("@/components/ProductFocusSection"), {
+const CollectionSection = dynamic(() => import("@/components/CollectionSection"), {
   ssr: false,
 });
 
@@ -38,7 +38,7 @@ export default function Home() {
         <VisionSectionWrapper />
       </Suspense>
       <Suspense fallback={<SectionLoader />}>
-        <ProductFocusSection />
+        <CollectionSection />
       </Suspense>
       <Suspense fallback={<SectionLoader />}>
         <PhilosophySection />

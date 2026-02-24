@@ -6,13 +6,155 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
+/**
+ * Samples the pixel brightness of an <img> at a given screen point,
+ * accounting for object-fit: cover and object-position.
+ * Returns true if dark, false if light, null if sampling failed.
+ */
+function sampleImageAtScreenPoint(
+  img: HTMLImageElement,
+  screenX: number,
+  screenY: number
+): boolean | null {
+  try {
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
+
+    const rect = img.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return null;
+
+    const imgAspect = img.naturalWidth / img.naturalHeight;
+    const elAspect = rect.width / rect.height;
+
+    let renderWidth: number, renderHeight: number;
+    if (imgAspect > elAspect) {
+      // Image wider than container – height fills, width overflows
+      renderHeight = rect.height;
+      renderWidth = rect.height * imgAspect;
+    } else {
+      // Image taller than container – width fills, height overflows
+      renderWidth = rect.width;
+      renderHeight = rect.width / imgAspect;
+    }
+
+    // Parse object-position (computed value, e.g. "50% 50%" or "50% 100%")
+    const objPos = getComputedStyle(img).objectPosition || "50% 50%";
+    const posParts = objPos.split(/\s+/);
+    const posX = parseFloat(posParts[0]) / 100 || 0.5;
+    const posY = parseFloat(posParts[1] || posParts[0]) / 100 || 0.5;
+
+    const offsetX = (renderWidth - rect.width) * posX;
+    const offsetY = (renderHeight - rect.height) * posY;
+
+    // Map screen coordinates → image natural coordinates
+    const relX = screenX - rect.left + offsetX;
+    const relY = screenY - rect.top + offsetY;
+    const imgX = (relX / renderWidth) * img.naturalWidth;
+    const imgY = (relY / renderHeight) * img.naturalHeight;
+
+    const sampleSize = 20;
+    canvas.width = sampleSize;
+    canvas.height = sampleSize;
+
+    const srcX = Math.max(
+      0,
+      Math.min(img.naturalWidth - sampleSize, imgX - sampleSize / 2)
+    );
+    const srcY = Math.max(
+      0,
+      Math.min(img.naturalHeight - sampleSize, imgY - sampleSize / 2)
+    );
+
+    ctx.drawImage(
+      img,
+      srcX,
+      srcY,
+      sampleSize,
+      sampleSize,
+      0,
+      0,
+      sampleSize,
+      sampleSize
+    );
+
+    const data = ctx.getImageData(0, 0, sampleSize, sampleSize).data;
+    let totalBrightness = 0;
+    const pixelCount = data.length / 4;
+
+    for (let i = 0; i < data.length; i += 4) {
+      totalBrightness +=
+        data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+    }
+
+    return totalBrightness / pixelCount < 128;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Determines if an rgb/rgba color string represents a dark color.
+ */
+function isColorStringDark(color: string): boolean {
+  const match = color.match(/rgba?\(\s*(\d+),\s*(\d+),\s*(\d+)/);
+  if (!match) return false;
+  const brightness =
+    parseInt(match[1]) * 0.299 +
+    parseInt(match[2]) * 0.587 +
+    parseInt(match[3]) * 0.114;
+  return brightness < 128;
+}
+
+/**
+ * Samples the brightness of whatever is rendered at a given screen point.
+ * Skips the header itself so we only inspect what's behind it.
+ * Returns true if the background is dark (needs light / beige text).
+ */
+function sampleBrightnessAtPoint(
+  screenX: number,
+  screenY: number
+): boolean {
+  try {
+    const elements = document.elementsFromPoint(screenX, screenY);
+
+    for (const el of elements) {
+      // Skip header and its children – we want what's BEHIND it
+      if (el.closest("header")) continue;
+      // Skip the fixed vision title overlay
+      if ((el as HTMLElement).dataset?.visionTitle) continue;
+
+      // Check for <img> elements (hero, vision images, etc.)
+      if (el.tagName === "IMG") {
+        const img = el as HTMLImageElement;
+        if (img.complete && img.naturalWidth > 0) {
+          const result = sampleImageAtScreenPoint(img, screenX, screenY);
+          if (result !== null) return result;
+        }
+      }
+
+      // Check for a solid background color
+      const bg = getComputedStyle(el).backgroundColor;
+      if (bg && bg !== "rgba(0, 0, 0, 0)" && bg !== "transparent") {
+        return isColorStringDark(bg);
+      }
+    }
+  } catch {
+    // Fallback: assume light background
+  }
+  return false;
+}
+
 export default function Header() {
   const [activeSection, setActiveSection] = useState("home");
   const [isNavVisible, setIsNavVisible] = useState(true);
   const lastScrollY = useRef(0);
   const logoRef = useRef<HTMLDivElement>(null);
+  const navRef = useRef<HTMLElement>(null);
   const [maskPosition, setMaskPosition] = useState(100); // Percentage from top (100 = all blue)
   const hasEnteredVisionRef = useRef(false); // Track if logo has ever entered vision section
+  const isDarkBgRef = useRef(false); // Avoid stale closures in scroll handler
+  const [isDarkBg, setIsDarkBg] = useState(false); // Whether the nav sits on a dark background
   const { scrollYProgress } = useScroll();
   const pathname = usePathname();
   const router = useRouter();
@@ -91,6 +233,19 @@ export default function Header() {
             } else {
               // Vision section not found, keep it blue
               setMaskPosition(100);
+            }
+          }
+
+          // Sample background brightness behind the nav (top-right area)
+          if (navRef.current) {
+            const navRect = navRef.current.getBoundingClientRect();
+            // Sample at the horizontal center of the nav, vertically centered
+            const sampleX = navRect.left + navRect.width / 2;
+            const sampleY = navRect.top + navRect.height / 2;
+            const dark = sampleBrightnessAtPoint(sampleX, sampleY);
+            if (dark !== isDarkBgRef.current) {
+              isDarkBgRef.current = dark;
+              setIsDarkBg(dark);
             }
           }
 
@@ -248,6 +403,7 @@ export default function Header() {
           
           {/* Navigation items */}
           <motion.nav 
+            ref={navRef}
             className="flex items-center gap-4 md:gap-6 lg:gap-8"
             animate={{
               opacity: isNavVisible ? 1 : 0,
@@ -277,7 +433,8 @@ export default function Header() {
                       : "opacity-50 hover:opacity-70"
                   }`}
                   style={{
-                    color: "#697a87"
+                    color: isDarkBg ? "#f6f4ed" : "#001d4a",
+                    transition: "color 0.5s ease-in-out",
                   }}
                 >
                   {/* Active indicator line */}
@@ -285,7 +442,10 @@ export default function Header() {
                     <motion.div
                       layoutId="activeIndicator"
                       className="absolute -bottom-1 left-0 right-0 h-0.5"
-                      style={{ backgroundColor: "#697a87" }}
+                      style={{
+                        backgroundColor: isDarkBg ? "#f6f4ed" : "#001d4a",
+                        transition: "background-color 0.5s ease-in-out",
+                      }}
                       initial={false}
                       transition={{ type: "spring", stiffness: 500, damping: 30 }}
                     />
