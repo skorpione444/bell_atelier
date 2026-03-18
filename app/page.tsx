@@ -14,6 +14,10 @@ const CollectionSection = dynamic(() => import("@/components/CollectionSection")
   ssr: false,
 });
 
+const WaitlistSection = dynamic(() => import("@/components/WaitlistSection"), {
+  ssr: false,
+});
+
 const PhilosophySection = dynamic(() => import("@/components/PhilosophySection"), {
   ssr: false,
 });
@@ -39,6 +43,9 @@ export default function Home() {
       </Suspense>
       <Suspense fallback={<SectionLoader />}>
         <CollectionSection />
+      </Suspense>
+      <Suspense fallback={<SectionLoader />}>
+        <WaitlistSection />
       </Suspense>
       <Suspense fallback={<SectionLoader />}>
         <PhilosophySection />

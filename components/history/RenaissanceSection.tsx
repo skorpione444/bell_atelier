@@ -27,7 +27,7 @@ export default function RenaissanceSection() {
             Renaissance
           </span>
           <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl text-charcoal mt-4">
-            Still in the Saddle
+            Still Riding
           </h2>
         </motion.div>
 

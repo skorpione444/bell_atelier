@@ -16,8 +16,8 @@ export default function ProductFocusSection() {
   // Two perspective images
   // Front (0) = scrolling down or at rest, Back (1) = scrolling up
   const perspectives = [
-    { id: 0, src: "/images/transparent_rider_branded.png", label: "Front" },
-    { id: 1, src: "/images/horse_back_pers.png", label: "Back" },
+    { id: 0, src: "/images/transparent_rider_branded.webp", label: "Front" },
+    { id: 1, src: "/images/horse_back_pers.webp", label: "Back" },
   ];
 
   const [currentIndex, setCurrentIndex] = useState(0); // Start with front view

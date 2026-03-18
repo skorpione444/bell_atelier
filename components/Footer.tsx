@@ -35,7 +35,7 @@ export default function Footer() {
             transition={{ duration: 0.8 }}
           >
             <Image
-              src="/images/bell_logo_beige.png"
+              src="/images/bell_logo_beige.webp"
               alt="Bell Atelier"
               width={150}
               height={50}

@@ -270,7 +270,7 @@ export default function PhilosophySection() {
             transition={{ duration: 5, delay: 0 }}
           >
             <Image
-              src="/images/bell_logo_beige.png"
+              src="/images/bell_logo_beige.webp"
               alt="Bell Atelier"
               width={150}
               height={50}

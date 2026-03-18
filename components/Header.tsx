@@ -366,7 +366,7 @@ export default function Header() {
             >
               {/* Blue logo (base layer) */}
               <Image
-                src="/images/bell_vertical_filled.png"
+                src="/images/bell_vertical_filled.webp"
                 alt="Bell Atelier Logo"
                 width={77}
                 height={102}
@@ -402,7 +402,7 @@ export default function Header() {
                 }}
               >
                 <Image
-                  src="/images/bell_vertical_filled_beige.png"
+                  src="/images/bell_vertical_filled_beige.webp"
                   alt="Bell Atelier Logo"
                   width={77}
                   height={102}

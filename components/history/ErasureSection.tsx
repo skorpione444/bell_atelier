@@ -50,16 +50,18 @@ export default function ErasureSection() {
 
             <div className="space-y-6 max-w-3xl mx-auto">
               <p className="font-sans text-lg md:text-xl text-beige/60 leading-relaxed">
-                From the 1950s through the 1970s, Hollywood westerns systematically
-                excluded Black cowboys from the screen. Studio executives avoided
-                casting Black actors in heroic roles. A century of one-sided
-                storytelling became accepted as truth.
+                The word &ldquo;cowboy&rdquo; was originally a slur — applied
+                specifically to Black cattlemen. White workers were called
+                &ldquo;cowhands.&rdquo; Then Hollywood rewrote the script.
+                From the 1950s onward, Western films systematically erased every
+                trace of African origin from cowboy culture.
               </p>
               <p className="font-sans text-lg md:text-xl text-beige/60 leading-relaxed">
-                Jim Crow didn&apos;t just segregate lunch counters — it segregated
-                history itself. The cowboy, once a figure shared across races, was
-                rewritten as exclusively white. Generations grew up never knowing
-                that the men who built the West looked like them.
+                The Fulani rope-work became &ldquo;American lassoing.&rdquo; The
+                mounted herding traditions of the Sahel became &ldquo;frontier
+                skills.&rdquo; An entire continent&apos;s contribution — millennia of
+                pastoral mastery — was whitewashed into a myth of European
+                pioneering. Africa was written out of its own story.
               </p>
             </div>
 

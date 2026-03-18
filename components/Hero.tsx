@@ -8,7 +8,7 @@ interface HeroProps {
   imageSrc?: string;
 }
 
-export default function Hero({ imageSrc = "/images/Landing image (1).png" }: HeroProps) {
+export default function Hero({ imageSrc = "/images/Landing image (1).webp" }: HeroProps) {
   const heroRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLDivElement>(null);
   const measureRef = useRef<HTMLDivElement>(null);
@@ -164,10 +164,10 @@ export default function Hero({ imageSrc = "/images/Landing image (1).png" }: Her
             <div className="relative h-[10.12rem] w-[10.12rem] md:h-[12.65rem] md:w-[12.65rem] lg:h-[15.18rem] lg:w-[15.18rem] flex items-center justify-center -mt-4 md:-mt-6 lg:-mt-8">
               <div
                 className="logo-shine-container w-full h-full"
-                style={{ '--logo-mask': "url('/images/bell_logo_beige.png')" } as React.CSSProperties}
+                style={{ '--logo-mask': "url('/images/bell_logo_beige.webp')" } as React.CSSProperties}
               >
                 <Image
-                  src="/images/bell_logo_beige.png"
+                  src="/images/bell_logo_beige.webp"
                   alt="Bell Atelier Logo"
                   fill
                   className="object-contain"
@@ -194,10 +194,10 @@ export default function Hero({ imageSrc = "/images/Landing image (1).png" }: Her
             <div className="relative h-[10.12rem] w-[10.12rem] md:h-[12.65rem] md:w-[12.65rem] lg:h-[15.18rem] lg:w-[15.18rem] flex items-center justify-center -mt-4 md:-mt-6 lg:-mt-8">
               <div
                 className="logo-shine-container w-full h-full"
-                style={{ '--logo-mask': "url('/images/bell_logo_beige.png')" } as React.CSSProperties}
+                style={{ '--logo-mask': "url('/images/bell_logo_beige.webp')" } as React.CSSProperties}
               >
                 <Image
-                  src="/images/bell_logo_beige.png"
+                  src="/images/bell_logo_beige.webp"
                   alt="Bell Atelier Logo"
                   fill
                   className="object-contain"

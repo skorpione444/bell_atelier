@@ -47,7 +47,7 @@ export default function LegendsSection() {
               Legends
             </span>
             <h2 className="font-serif text-4xl md:text-5xl text-charcoal mt-4">
-              The Names They Tried to Forget
+              The Riders Who Made History
             </h2>
           </motion.div>
 
@@ -90,7 +90,7 @@ export default function LegendsSection() {
             Legends
           </span>
           <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl text-charcoal mt-4">
-            The Names They Tried to Forget
+            The Riders Who Made History
           </h2>
         </motion.div>
 

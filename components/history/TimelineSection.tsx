@@ -40,7 +40,7 @@ export default function TimelineSection() {
             Timeline
           </span>
           <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl text-charcoal mt-4">
-            A History Written in Dust
+            From the Sahel to the Saddle
           </h2>
         </motion.div>
 

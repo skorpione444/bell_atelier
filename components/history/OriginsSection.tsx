@@ -97,8 +97,8 @@ export default function OriginsSection() {
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
             <ImageHolder
-              src="/images/history/1913.jpg"
-              alt="Black cowboys on horseback, circa 1913"
+              src="/images/history/f2d72ac19b7d7f56cbfe3f842a298c12.webp"
+              alt="African cowboys in frontier gear"
               aspectRatio="portrait"
               className="w-full"
             />
@@ -127,17 +127,17 @@ export default function OriginsSection() {
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.1 }}
             >
-              Before the Legend
+              Born in Africa
             </motion.h2>
 
             <div className="space-y-4 pt-4">
               <TypewriterText
-                text="Long before Hollywood invented its version of the cowboy, enslaved Africans were working the cattle ranches of Texas — roping, riding, and managing herds across hundreds of miles of open range."
+                text="Long before the American West existed, Africa's great pastoral peoples — the Fulani of the Sahel, the Nguni of the south, the Maasai of the east — were herding cattle across vast landscapes. They developed the rope-work, mounted herding, and seasonal migration that would one day define the cowboy."
                 className="font-sans text-lg md:text-xl text-charcoal/80 leading-relaxed"
                 delay={0.3}
               />
               <TypewriterText
-                text="By 1845, an estimated 25% of the settler population in Texas was of African descent. When white ranchers left to fight in the Civil War, it was Black cattlemen who kept the ranches running — the backbone of an industry that would define the American West."
+                text="When slave traders crossed the Atlantic, they deliberately targeted these herding peoples for their skills. A 2023 DNA study confirmed what Africa always knew: cattle with genetics found only in Africa reached the Americas by the 1600s. The herders and their cattle came as a package. The cowboy was African before he was American."
                 className="font-sans text-lg md:text-xl text-charcoal/80 leading-relaxed"
                 delay={2.5}
               />

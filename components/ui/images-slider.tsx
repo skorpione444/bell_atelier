@@ -192,9 +192,9 @@ export const ImagesSlider = ({
     : false;
   
   // Check if image needs cropping
-  const needsTopCrop = currentImage.includes('ll (5).png');
-  const needsRightCrop = currentImage.includes('Pitch Deck - BELL.png') && !currentImage.includes('Pitch Deck - BELL (1).png');
-  const needsTopBottomCrop = currentImage.includes('Pitch Deck - BELL (1).png');
+  const needsTopCrop = currentImage.includes('ll (5).');
+  const needsRightCrop = currentImage.includes('Pitch Deck - BELL.') && !currentImage.includes('Pitch Deck - BELL (1).');
+  const needsTopBottomCrop = currentImage.includes('Pitch Deck - BELL (1).');
   
   // Base scale for all images (previous: 0.837, additional 15% reduction = 0.837 * 0.85 = 0.711)
   const baseScale = 0.9 * 0.93 * 0.85; // 0.711 (28.9% total reduction)

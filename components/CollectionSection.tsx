@@ -6,17 +6,17 @@ import Section from "./Section";
 import Image from "next/image";
 
 const BROWN_IMAGES = [
-  "/images/Collection/brown1.png",
-  "/images/Collection/brown2.png",
-  "/images/Collection/brown3.png",
-  "/images/Collection/brown4.png",
+  "/images/Collection/brown1.webp",
+  "/images/Collection/brown2.webp",
+  "/images/Collection/brown3.webp",
+  "/images/Collection/brown4.webp",
 ];
 
 const BLACK_IMAGES = [
-  "/images/Collection/black1.png",
-  "/images/Collection/black2.png",
-  "/images/Collection/black3.png",
-  "/images/Collection/black4.png",
+  "/images/Collection/black1.webp",
+  "/images/Collection/black2.webp",
+  "/images/Collection/black3.webp",
+  "/images/Collection/black4.webp",
 ];
 
 type BootColor = "brown" | "black";

@@ -61,7 +61,7 @@ export default function VerticalNav() {
       <div className="pt-6 pb-8 px-6">
         <div className="relative h-12 w-12 md:h-16 md:w-16">
           <Image
-            src="/images/bell-logo-blue.png"
+            src="/images/bell-logo-blue.webp"
             alt="Bell Atelier Logo"
             fill
             className="object-contain"

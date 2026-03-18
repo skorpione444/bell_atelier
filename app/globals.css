@@ -156,6 +156,41 @@
   animation: logo-shine 1s ease-in-out;
 }
 
+/* Waitlist — dark select dropdown */
+.waitlist-select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23bcb69a' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  background-size: 12px;
+}
+
+.waitlist-select option {
+  background-color: #1a1a1a;
+  color: #f6f4ed;
+}
+
+/* Waitlist — checkmark draw-on animation */
+.waitlist-checkmark-circle {
+  stroke-dasharray: 151;
+  stroke-dashoffset: 151;
+  animation: waitlist-circle 0.6s ease-out 0.1s forwards;
+}
+
+.waitlist-checkmark-check {
+  stroke-dasharray: 36;
+  stroke-dashoffset: 36;
+  animation: waitlist-check 0.4s ease-out 0.5s forwards;
+}
+
+@keyframes waitlist-circle {
+  to { stroke-dashoffset: 0; }
+}
+
+@keyframes waitlist-check {
+  to { stroke-dashoffset: 0; }
+}
+
 .logo-shine-depth {
   position: absolute;
   inset: 0;

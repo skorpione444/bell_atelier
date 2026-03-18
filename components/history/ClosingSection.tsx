@@ -21,7 +21,7 @@ export default function ClosingSection() {
         >
           <div className="logo-shine-container relative inline-block cursor-pointer">
             <Image
-              src="/images/bell_logo_beige.png"
+              src="/images/bell_logo_beige.webp"
               alt="Bell Atelier"
               width={150}
               height={50}
@@ -31,7 +31,7 @@ export default function ClosingSection() {
             <div
               className="logo-shine-mask"
               style={{
-                "--logo-mask": "url(/images/bell_logo_beige.png)",
+                "--logo-mask": "url(/images/bell_logo_beige.webp)",
               } as React.CSSProperties}
             >
               <div className="logo-shine-streak" />
@@ -48,7 +48,7 @@ export default function ClosingSection() {
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.2 }}
         >
-          Carrying the Legacy Forward
+          From Africa, Forward
         </motion.h2>
 
         {/* Body text */}
@@ -60,12 +60,14 @@ export default function ClosingSection() {
           transition={{ duration: 0.8, delay: 0.4 }}
         >
           <p className="font-sans text-lg md:text-xl text-charcoal/80 leading-relaxed">
-            Bell Atelier exists because this story deserves to be worn — not just
-            told. Every boot we craft carries the spirit of the riders who came
-            before: their resilience, their mastery, their refusal to be erased.
+            Bell Atelier is born in Cape Town — on the same soil where the
+            Khoisan crafted leather boots a thousand years ago, where the
+            Cederberg Mountains housed Africa&apos;s first factory, where Basotho
+            horsemen still ride. Every boot we craft carries this lineage.
           </p>
           <p className="font-sans text-lg md:text-xl text-charcoal/80 leading-relaxed">
-            This is not nostalgia. This is continuation.
+            The cowboy was African before he was anything else. This is not
+            nostalgia. This is reclamation.
           </p>
         </motion.div>
 

@@ -32,7 +32,7 @@ export default function HistoryHero() {
       >
         <div className="w-full h-[130%] relative">
           <Image
-            src="/images/history/Hero.jpg"
+            src="/images/history/Hero.webp"
             alt="Wild horses running across the frontier"
             fill
             className="object-cover object-center"
@@ -50,22 +50,15 @@ export default function HistoryHero() {
 
       {/* Content */}
       <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
-        {/* "1 in 4" stat */}
+        {/* Main statement */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.3 }}
         >
-          <div className="font-montserrat font-light text-[6rem] md:text-[10rem] lg:text-[12rem] leading-none text-beige/90 mb-4">
-            {prefersReducedMotion ? (
-              <span>1 in 4</span>
-            ) : (
-              <>
-                <CountUpNumber value={1} className="inline" /> in{" "}
-                <CountUpNumber value={4} className="inline" />
-              </>
-            )}
-          </div>
+          <h1 className="font-serif text-[3rem] md:text-[5rem] lg:text-[6.5rem] leading-[0.95] text-beige/90 mb-6">
+            The First Cowboys<br />Were African
+          </h1>
         </motion.div>
 
         {/* Subtitle */}
@@ -75,7 +68,7 @@ export default function HistoryHero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.8 }}
         >
-          cowboys in the American West were Black
+          Before the frontier, before the West — there was the Sahel
         </motion.p>
 
         {/* Quote */}
@@ -85,8 +78,8 @@ export default function HistoryHero() {
           animate={{ opacity: 1 }}
           transition={{ duration: 1.5, delay: 1.5 }}
         >
-          &ldquo;They tried to erase us from the frontier. The saddle
-          remembers.&rdquo;
+          &ldquo;The cattle are not property. They are family. You do not own
+          them — you walk beside them.&rdquo;
         </motion.blockquote>
       </div>
 

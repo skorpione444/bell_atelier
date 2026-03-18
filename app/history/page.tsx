@@ -4,9 +4,9 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
 export const metadata = {
-  title: "Black Cowboys History - Bell Atelier",
+  title: "The African Cowboy - Bell Atelier",
   description:
-    "The untold story of Black cowboys in America — from enslaved cattlemen in 1820s Texas to the modern cultural renaissance.",
+    "The untold story of the African cowboy — from Fulani herders of the Sahel to Basotho horsemen of Southern Africa to the American frontier and beyond.",
 };
 
 const SectionLoader = () => (
