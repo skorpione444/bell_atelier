@@ -60,19 +60,23 @@ export async function POST(req: NextRequest) {
     rateLimitMap.set(ip, Date.now());
 
     // Forward to Google Apps Script
+    // Apps Script processes the POST then returns a 302 redirect to the response.
+    // Use redirect: "manual" — a 302 means the script executed successfully.
+    const payload = JSON.stringify(data);
     const res = await fetch(GOOGLE_SCRIPT_URL!, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: payload,
+      redirect: "manual",
     });
 
-    if (!res.ok) {
+    if (res.status !== 302 && !res.ok) {
       throw new Error(`Google Script responded with ${res.status}`);
     }
 
     return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("Waitlist API error:", error);
+  } catch (error: unknown) {
+    console.error("Waitlist API error:", error instanceof Error ? error.message : error);
     return NextResponse.json(
       { error: "Something went wrong. Please try again." },
       { status: 500 }
