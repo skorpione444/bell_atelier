@@ -32,6 +32,28 @@
     z-index: 1;
   }
 
+  /* Grain overlay for dark sections */
+  .grain-overlay-dark {
+    position: relative;
+  }
+
+  .grain-overlay-dark::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.06'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Timeline line glow */
+  .timeline-line-glow {
+    box-shadow: 0 0 8px rgba(0, 29, 74, 0.2);
+  }
+
   /* Hide scrollbar */
   .scrollbar-hide {
     -ms-overflow-style: none;
@@ -72,6 +94,13 @@
     38% { opacity: 0.5; transform: translate(1px, 0); }
     /* Pause phase - 40% to 100% (3 seconds of pause) */
     40%, 100% { opacity: 1; transform: translate(0); }
+  }
+}
+
+/* Reduced motion: disable glitch flicker */
+@media (prefers-reduced-motion: reduce) {
+  .glitch-flicker {
+    animation: none !important;
   }
 }
 

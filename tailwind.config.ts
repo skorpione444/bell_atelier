@@ -14,6 +14,8 @@ const config: Config = {
         beige: "#f6f4ed",
         espresso: "#3A2E1F",
         charcoal: "#2C2C2C",
+        navy: "#001d4a",
+        maroon: "#800020",
       },
       fontFamily: {
         sans: ["var(--font-inter)", "system-ui", "sans-serif"],

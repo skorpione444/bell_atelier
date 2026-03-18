@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import ImageHolder from "./ImageHolder";
 import Section from "./Section";
 
@@ -17,7 +18,6 @@ export default function AboutSection() {
             transition={{ duration: 0.8, ease: "easeOut" }}
           >
             <ImageHolder aspectRatio="square" className="w-full" />
-            {/* TODO: Replace with actual about image */}
           </motion.div>
 
           {/* Right: Text block */}
@@ -33,19 +33,30 @@ export default function AboutSection() {
             </h2>
             <div className="space-y-4 pt-4">
               <p className="font-sans text-lg md:text-xl text-charcoal/80 leading-relaxed">
-                {/* TODO: Replace with actual about text */}
-                Our workshop is where tradition meets innovation. Each boot is
-                meticulously crafted by master artisans who have dedicated their
-                lives to the art of leatherwork and precision construction.
-              </p>
-              <p className="font-sans text-lg md:text-xl text-charcoal/80 leading-relaxed">
-                {/* TODO: Replace with additional about text */}
-                From the selection of premium materials to the final hand-stitched
-                details, every step is executed with intention and care. This is
-                not mass production—it is the slow, deliberate creation of
-                heirloom-quality pieces.
+                Bell Atelier is rooted in the heritage of the Black cowboy — a
+                legacy of resilience, craftsmanship, and quiet authority that
+                shaped the American West. Every boot we create carries that
+                history forward.
               </p>
             </div>
+            <Link
+              href="/history"
+              className="inline-block font-montserrat font-medium text-xs uppercase tracking-[0.35em] px-8 py-4 border transition-all duration-300"
+              style={{
+                borderColor: "#001d4a",
+                color: "#001d4a",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "#001d4a";
+                e.currentTarget.style.color = "#f6f4ed";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "transparent";
+                e.currentTarget.style.color = "#001d4a";
+              }}
+            >
+              Cowboy History
+            </Link>
           </motion.div>
         </div>
       </div>

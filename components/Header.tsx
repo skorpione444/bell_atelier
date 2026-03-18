@@ -146,7 +146,9 @@ function sampleBrightnessAtPoint(
 }
 
 export default function Header() {
-  const [activeSection, setActiveSection] = useState("home");
+  const [activeSection, setActiveSection] = useState(
+    typeof window !== "undefined" && window.location.pathname === "/history" ? "history" : "home"
+  );
   const [isNavVisible, setIsNavVisible] = useState(true);
   const lastScrollY = useRef(0);
   const logoRef = useRef<HTMLDivElement>(null);
@@ -168,6 +170,7 @@ export default function Header() {
     { id: "collection", label: "Collection", href: "#collection" },
     { id: "philosophy", label: "Philosophy", href: "#philosophy" },
     { id: "about", label: "About", href: "#about" },
+    { id: "history", label: "History", href: "/history" },
   ];
 
   useEffect(() => {
@@ -268,6 +271,13 @@ export default function Header() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Set active section based on pathname for page routes
+  useEffect(() => {
+    if (pathname === "/history") {
+      setActiveSection("history");
+    }
+  }, [pathname]);
+
   // Handle scrolling to section when navigating from another page with hash
   useEffect(() => {
     if (pathname === "/" && typeof window !== "undefined") {
@@ -293,19 +303,26 @@ export default function Header() {
   }, [pathname]);
 
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    // If it's a page link (starts with /), let normal navigation happen
+    if (href.startsWith("/")) {
+      e.preventDefault();
+      router.push(href);
+      return;
+    }
+
     e.preventDefault();
     const targetId = href.replace("#", "");
-    
+
     // If we're not on the home page, navigate to home page with hash
     if (pathname !== "/") {
       // Use window.location for reliable hash navigation across pages
       window.location.href = `/${href}`;
       return;
     }
-    
+
     // If we're on the home page, scroll to the section
     const element = document.getElementById(targetId);
-    
+
     if (element) {
       const headerOffset = 80;
       const elementPosition = element.getBoundingClientRect().top;
