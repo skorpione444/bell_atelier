@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
     const message = error instanceof Error ? error.message : String(error);
     console.error("Waitlist API error:", message);
     return NextResponse.json(
-      { error: "Something went wrong. Please try again.", debug: message },
+      { error: "Something went wrong. Please try again." },
       { status: 500 }
     );
   }
