@@ -3,11 +3,26 @@
 @tailwind utilities;
 
 @layer base {
+  /* Nothing may be reachable sideways — a single overflowing element used to
+     let the whole page pan, exposing the beige body behind the full-bleed
+     images. `clip` instead of `hidden` so it never becomes a scroll container
+     and the scroll-driven sticky panels keep resolving against the viewport. */
+  html {
+    overflow-x: clip;
+  }
+
+  @supports not (overflow: clip) {
+    html {
+      overflow-x: hidden;
+    }
+  }
+
   body {
     @apply bg-beige text-charcoal;
     background-color: #f6f4ed;
+    -webkit-tap-highlight-color: transparent;
   }
-  
+
   /* Ensure sections are visible by default */
   section {
     display: block;
@@ -15,11 +30,11 @@
 }
 
 @layer utilities {
-  /* Subtle grain texture overlay */
-  .grain-overlay {
-    position: relative;
-  }
-  
+  /* Subtle grain texture overlay.
+     These deliberately do NOT set `position` — custom utilities are emitted
+     after Tailwind's own, so a `position: relative` here silently beat the
+     `absolute` / `fixed` on the elements carrying the class. Every consumer
+     positions itself. */
   .grain-overlay::before {
     content: "";
     position: absolute;
@@ -33,10 +48,6 @@
   }
 
   /* Grain overlay for dark sections */
-  .grain-overlay-dark {
-    position: relative;
-  }
-
   .grain-overlay-dark::before {
     content: "";
     position: absolute;
@@ -101,6 +112,54 @@
 @media (prefers-reduced-motion: reduce) {
   .glitch-flicker {
     animation: none !important;
+  }
+}
+
+/* Full-height blocks that respect the mobile browser chrome.
+   `100vh` on a phone is the *large* viewport, so anything pinned to the bottom
+   of such a block hides behind the URL bar. */
+.h-screen-safe {
+  height: 100vh;
+}
+
+@supports (height: 100svh) {
+  .h-screen-safe {
+    height: 100svh;
+  }
+}
+
+/* Collection — Series 1 product panels.
+   The boot photography is 16:9 on a pure white studio backdrop, and the panels
+   behind it are white too, so `contain` letterboxes invisibly: the whole frame
+   is always shown and nothing is ever cropped, whatever shape the window is.
+   `cover` cut the sides off on a phone (~74% of the width) and, on a window
+   wider than 16:9, sliced the soles off the bottom. */
+.collection-boot-image {
+  object-fit: contain;
+}
+
+/* A contained 16:9 frame is tiny on a portrait phone, so nudge it in. 1.25 is
+   the largest zoom that still keeps all eight shots fully inside the frame. */
+@media (max-aspect-ratio: 6 / 5) {
+  .collection-boot-image {
+    transform: scale(1.25);
+  }
+}
+
+/* Colour selector — centred beneath the boot on phones, parked to the right of
+   the frame once there is room for it beside the product. */
+.collection-toggle {
+  position: absolute;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 4.5rem);
+  transform: translateX(-50%);
+}
+
+@media (min-width: 1024px) {
+  .collection-toggle {
+    left: 75%;
+    bottom: auto;
+    top: clamp(130px, 18vh, 200px);
   }
 }
 

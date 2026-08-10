@@ -21,11 +21,13 @@ export default function LegendsSection() {
     offset: ["start start", "end end"],
   });
 
-  // Map vertical scroll to horizontal card movement
+  // Map vertical scroll to horizontal card movement.
+  // In viewport units, not percent: a percentage translate resolves against
+  // the track's own width (7 cards = 700vw), so -600% overshot by 7x.
   const x = useTransform(
     scrollYProgress,
     [0, 1],
-    ["0%", `-${(legendFigures.length - 1) * 100}%`]
+    ["0vw", `-${(legendFigures.length - 1) * 100}vw`]
   );
 
   if (isMobile) {

@@ -6,8 +6,12 @@ import ImageHolder from "./ImageHolder";
 import Section from "./Section";
 
 export default function AboutSection() {
+  // overflow-x-clip: the text block below waits at translateX(50px) until it
+  // scrolls into view, which parked 26px of it past the right edge of the page
+  // and made the whole document pannable sideways. `clip` rather than `hidden`
+  // so no scroll container is created.
   return (
-    <Section id="about" className="py-32 px-6 md:px-12 lg:px-24">
+    <Section id="about" className="py-32 px-6 md:px-12 lg:px-24 overflow-x-clip">
       <div className="max-w-7xl mx-auto">
         <div className="grid md:grid-cols-2 gap-12 md:gap-16 items-center">
           {/* Left: Image holder */}
@@ -39,21 +43,11 @@ export default function AboutSection() {
                 history forward.
               </p>
             </div>
+            {/* CSS hover rather than mouse handlers — on a touch screen the
+                JS version latched the inverted state on after a tap */}
             <Link
               href="/history"
-              className="inline-block font-montserrat font-medium text-xs uppercase tracking-[0.35em] px-8 py-4 border transition-all duration-300"
-              style={{
-                borderColor: "#001d4a",
-                color: "#001d4a",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "#001d4a";
-                e.currentTarget.style.color = "#f6f4ed";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "transparent";
-                e.currentTarget.style.color = "#001d4a";
-              }}
+              className="inline-block font-montserrat font-medium text-xs uppercase tracking-[0.35em] px-8 py-4 border border-[#001d4a] text-[#001d4a] transition-colors duration-300 hover:bg-[#001d4a] hover:text-[#f6f4ed]"
             >
               Cowboy History
             </Link>

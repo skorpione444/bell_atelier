@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { AnimatePresence, motion, useScroll, useTransform } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 
@@ -146,13 +146,14 @@ function sampleBrightnessAtPoint(
 }
 
 export default function Header() {
-  const [activeSection, setActiveSection] = useState(
-    typeof window !== "undefined" && window.location.pathname === "/history" ? "history" : "home"
-  );
+  // Starts on "home" for both renders — the pathname effect below corrects it,
+  // so the server and client markup agree.
+  const [activeSection, setActiveSection] = useState("home");
   const [isNavVisible, setIsNavVisible] = useState(true);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const lastScrollY = useRef(0);
   const logoRef = useRef<HTMLDivElement>(null);
-  const navRef = useRef<HTMLElement>(null);
+  const navRef = useRef<HTMLDivElement>(null);
   const [maskPosition, setMaskPosition] = useState(100); // Percentage from top (100 = all blue)
   const hasEnteredVisionRef = useRef(false); // Track if logo has ever entered vision section
   const isDarkBgRef = useRef(false); // Avoid stale closures in scroll handler
@@ -278,6 +279,34 @@ export default function Header() {
     }
   }, [pathname]);
 
+  // Hold the page still behind the mobile menu, and let Escape dismiss it
+  useEffect(() => {
+    if (!isMenuOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsMenuOpen(false);
+    };
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isMenuOpen]);
+
+  // Drop the menu if the viewport grows into the inline nav layout
+  useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 1024px)");
+    const handleChange = (e: MediaQueryListEvent) => {
+      if (e.matches) setIsMenuOpen(false);
+    };
+    desktop.addEventListener("change", handleChange);
+    return () => desktop.removeEventListener("change", handleChange);
+  }, []);
+
   // Handle scrolling to section when navigating from another page with hash
   useEffect(() => {
     if (pathname === "/" && typeof window !== "undefined") {
@@ -335,34 +364,76 @@ export default function Header() {
     }
   };
 
+  // Same navigation, but the curtain has to come down before the page moves —
+  // the body is scroll-locked while the menu is open.
+  const handleMenuClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string
+  ) => {
+    e.preventDefault();
+    setIsMenuOpen(false);
+
+    window.setTimeout(() => {
+      if (href.startsWith("/")) {
+        router.push(href);
+        return;
+      }
+
+      if (pathname !== "/") {
+        window.location.href = `/${href}`;
+        return;
+      }
+
+      const element = document.getElementById(href.replace("#", ""));
+      if (element) {
+        const headerOffset = 80;
+        const elementPosition = element.getBoundingClientRect().top;
+        window.scrollTo({
+          top: elementPosition + window.pageYOffset - headerOffset,
+          behavior: "smooth",
+        });
+      }
+    }, 420);
+  };
+
   // Create dynamic mask gradient for portal effect
   // Reveals beige logo from bottom to top as it enters vision section
   // maskPosition: 100 = all blue (beige hidden), 0 = all beige (beige visible)
   // Everything below the transition point should be fully beige
+  // The open menu is navy, so the blue mark would vanish into it — force the
+  // beige mark for as long as the curtain is down.
+  const effectiveMaskPosition = isMenuOpen ? 0 : maskPosition;
   const transitionZone = 3; // Small transition zone for smooth edge
-  const maskGradient = `linear-gradient(to bottom, 
-    transparent 0%, 
-    transparent ${Math.max(0, maskPosition - transitionZone)}%, 
-    black ${Math.max(0, maskPosition - transitionZone)}%, 
+  const maskGradient = `linear-gradient(to bottom,
+    transparent 0%,
+    transparent ${Math.max(0, effectiveMaskPosition - transitionZone)}%,
+    black ${Math.max(0, effectiveMaskPosition - transitionZone)}%,
     black 100%
   )`;
 
+  // Nav chrome sits on beige, on photography, or on the open navy curtain
+  const chromeColor = isMenuOpen || isDarkBg ? "#f6f4ed" : "#001d4a";
+
   return (
     <motion.header
-      className="fixed top-0 left-0 right-0 z-50"
+      className="fixed top-0 left-0 right-0 z-[80]"
       style={{
-        opacity: headerOpacity,
+        opacity: isMenuOpen ? 1 : headerOpacity,
         backgroundColor: "transparent",
       }}
     >
-      <div className="container mx-auto px-4 md:px-6 lg:px-8">
+      <div className="relative z-20 container mx-auto px-4 md:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20 md:h-24">
           {/* Logo with portal transition effect */}
-          <Link href="#home" onClick={(e) => handleClick(e, "#home")}>
-            <div 
+          <Link
+            href="#home"
+            onClick={(e) =>
+              isMenuOpen ? handleMenuClick(e, "#home") : handleClick(e, "#home")
+            }
+          >
+            <div
               ref={logoRef}
-              className="relative w-auto h-[77px] md:h-[102px] glitch-flicker" 
-              style={{ marginLeft: '-20px', marginTop: '40px' }}
+              className="relative w-auto h-[104px] md:h-[102px] ml-[-6px] md:ml-[-20px] mt-[30px] md:mt-[40px] glitch-flicker"
             >
               {/* Blue logo (base layer) */}
               <Image
@@ -371,9 +442,9 @@ export default function Header() {
                 width={77}
                 height={102}
                 className="object-contain h-full w-auto"
-                style={{ 
+                style={{
                   transform: 'translateZ(0)',
-                  opacity: maskPosition === 0 ? 0 : 1,
+                  opacity: effectiveMaskPosition === 0 ? 0 : 1,
                   width: '100%',
                   height: '100%',
                 }}
@@ -418,22 +489,25 @@ export default function Header() {
             </div>
           </Link>
           
-          {/* Navigation items */}
-          <motion.nav 
+          {/* Navigation — inline from lg up, curtain menu below that.
+              Six wide-tracked labels need ~660px, which no phone or portrait
+              tablet has; forcing them inline is what pushed the page sideways. */}
+          <motion.div
             ref={navRef}
-            className="flex items-center gap-4 md:gap-6 lg:gap-8"
+            className="flex items-center"
             animate={{
-              opacity: isNavVisible ? 1 : 0,
-              y: isNavVisible ? 0 : -20,
+              opacity: isNavVisible || isMenuOpen ? 1 : 0,
+              y: isNavVisible || isMenuOpen ? 0 : -20,
             }}
             transition={{
               duration: 0.3,
               ease: "easeInOut",
             }}
             style={{
-              pointerEvents: isNavVisible ? "auto" : "none",
+              pointerEvents: isNavVisible || isMenuOpen ? "auto" : "none",
             }}
           >
+          <nav className="hidden lg:flex items-center gap-8">
             {navItems.map((item, index) => (
               <motion.div
                 key={item.id}
@@ -498,9 +572,136 @@ export default function Header() {
                 </Link>
               </motion.div>
             ))}
-          </motion.nav>
+          </nav>
+
+            {/* Menu trigger — two rules that fold into a cross */}
+            <button
+              type="button"
+              onClick={() => setIsMenuOpen((open) => !open)}
+              aria-expanded={isMenuOpen}
+              aria-controls="mobile-menu"
+              aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+              className="lg:hidden -mr-2 flex h-12 w-12 items-center justify-center"
+            >
+              <span className="relative block h-4 w-6">
+                <motion.span
+                  className="absolute left-0 top-[4px] block h-[1.5px] w-full"
+                  style={{ backgroundColor: chromeColor }}
+                  animate={{ rotate: isMenuOpen ? 45 : 0, y: isMenuOpen ? 4 : 0 }}
+                  transition={{ duration: 0.35, ease: [0.76, 0, 0.24, 1] }}
+                />
+                <motion.span
+                  className="absolute left-0 top-[12px] block h-[1.5px] w-full"
+                  style={{ backgroundColor: chromeColor }}
+                  animate={{ rotate: isMenuOpen ? -45 : 0, y: isMenuOpen ? -4 : 0 }}
+                  transition={{ duration: 0.35, ease: [0.76, 0, 0.24, 1] }}
+                />
+              </span>
+            </button>
+          </motion.div>
         </div>
       </div>
+
+      {/* Mobile menu — a navy curtain drawn down over the page */}
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            id="mobile-menu"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Main menu"
+            className="lg:hidden fixed inset-0 z-10 grain-overlay-dark overflow-y-auto overscroll-contain"
+            style={{ backgroundColor: "#001d4a" }}
+            initial={{ clipPath: "inset(0% 0% 100% 0%)" }}
+            animate={{ clipPath: "inset(0% 0% 0% 0%)" }}
+            exit={{ clipPath: "inset(0% 0% 100% 0%)" }}
+            transition={{ duration: 0.55, ease: [0.76, 0, 0.24, 1] }}
+          >
+            {/* pt clears the logo, which overhangs the header bar */}
+            <div className="relative z-10 flex min-h-full flex-col justify-between px-8 pb-10 pt-36 sm:px-12">
+              <nav className="flex flex-col">
+                {navItems.map((item, index) => (
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, y: 24 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 12, transition: { duration: 0.2 } }}
+                    transition={{
+                      duration: 0.5,
+                      delay: 0.18 + index * 0.06,
+                      ease: [0.25, 0.46, 0.45, 0.94],
+                    }}
+                  >
+                    <Link
+                      href={item.href}
+                      onClick={(e) => handleMenuClick(e, item.href)}
+                      className="flex items-baseline gap-5 py-[2.6vh] min-h-[46px]"
+                      style={{
+                        borderBottom: "1px solid rgba(246, 244, 237, 0.12)",
+                      }}
+                    >
+                      <span
+                        className="font-montserrat font-medium text-[0.5rem] uppercase tracking-[0.3em]"
+                        style={{ color: "#bcb69a" }}
+                      >
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                      <span
+                        className="font-serif text-[1.9rem] leading-none sm:text-[2.25rem]"
+                        style={{
+                          color:
+                            activeSection === item.id
+                              ? "#f6f4ed"
+                              : "rgba(246, 244, 237, 0.6)",
+                          transition: "color 0.3s ease-in-out",
+                        }}
+                      >
+                        {item.label}
+                      </span>
+                      {activeSection === item.id && (
+                        <motion.span
+                          layoutId="menuActiveDot"
+                          className="ml-auto block h-1.5 w-1.5 rounded-full self-center"
+                          style={{ backgroundColor: "#bcb69a" }}
+                        />
+                      )}
+                    </Link>
+                  </motion.div>
+                ))}
+              </nav>
+
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0, transition: { duration: 0.15 } }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+                className="flex items-end justify-between gap-6"
+              >
+                <p
+                  className="font-montserrat font-medium text-[0.5rem] uppercase tracking-[0.3em] leading-relaxed"
+                  style={{ color: "rgba(246, 244, 237, 0.35)" }}
+                >
+                  Crafted for the
+                  <br />
+                  modern West
+                </p>
+                <a
+                  href="https://www.instagram.com/bellatelier.studio/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-montserrat font-medium text-[0.5rem] uppercase tracking-[0.3em] pb-1"
+                  style={{
+                    color: "#bcb69a",
+                    borderBottom: "1px solid rgba(188, 182, 154, 0.4)",
+                  }}
+                >
+                  Instagram
+                </a>
+              </motion.div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.header>
   );
 }

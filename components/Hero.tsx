@@ -104,7 +104,7 @@ export default function Hero({ imageSrc = "/images/Landing image (1).webp" }: He
     <div
       ref={heroRef}
       id="home"
-      className="relative h-screen w-full overflow-hidden"
+      className="relative h-screen-safe w-full overflow-hidden"
       style={{
         position: 'relative',
       }}
@@ -214,7 +214,9 @@ export default function Hero({ imageSrc = "/images/Landing image (1).webp" }: He
       )}
 
       {/* Text - tagline - Positioned at bottom, disappears sooner */}
-      <div className="absolute left-0 right-0 z-10 flex flex-col items-center pb-8 md:pb-12 lg:pb-16" style={{ bottom: '-35px' }}>
+      {/* pb clears the -35px offset on phones — at pb-8 the tagline sat 3px
+          below the hero and was shaved off by overflow-hidden */}
+      <div className="absolute left-0 right-0 z-10 flex flex-col items-center pb-12 md:pb-12 lg:pb-16" style={{ bottom: '-35px' }}>
         <motion.p
           className="font-sans text-sm md:text-base tracking-widest uppercase drop-shadow-sm"
           style={{ 

@@ -10,8 +10,11 @@ interface LegendCardProps {
 }
 
 export default function LegendCard({ figure, index }: LegendCardProps) {
+  // Stacked and self-sized on mobile; a full-viewport slide in the desktop
+  // horizontal track. `w-screen` inside the padded mobile column pushed the
+  // page 48px sideways.
   return (
-    <div className="w-screen h-screen flex-shrink-0 flex items-center justify-center px-6 md:px-16 lg:px-24">
+    <div className="w-full md:w-screen md:h-screen flex-shrink-0 flex items-center justify-center md:px-16 lg:px-24">
       <div className="max-w-6xl w-full grid md:grid-cols-2 gap-10 md:gap-16 items-center">
         {/* Portrait placeholder */}
         <motion.div

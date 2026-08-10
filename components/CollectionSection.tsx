@@ -31,15 +31,12 @@ export default function CollectionSection() {
   const images = selectedColor === "brown" ? BROWN_IMAGES : BLACK_IMAGES;
   const totalImages = images.length;
 
-  // Preload all images (both colors) on mount
-  useEffect(() => {
-    [...BROWN_IMAGES, ...BLACK_IMAGES].forEach((src) => {
-      const img = new window.Image();
-      img.src = src;
-      img.onload = () => {
-        setLoadedImages((prev) => new Set(prev).add(src));
-      };
-    });
+  // Load bookkeeping is driven by next/image's own onLoad. Preloading these via
+  // `new window.Image()` fetched the raw 2880px originals — bypassing the image
+  // optimizer entirely — and every shot was then downloaded a second time
+  // through /_next/image.
+  const markLoaded = useCallback((src: string) => {
+    setLoadedImages((prev) => (prev.has(src) ? prev : new Set(prev).add(src)));
   }, []);
 
   // Scroll-driven animation and visibility detection
@@ -124,13 +121,15 @@ export default function CollectionSection() {
       >
         {/* SERIES 1 title - centered */}
         <motion.div
-          className="flex justify-center pointer-events-auto"
+          className="flex justify-center"
           initial={{ opacity: 0, y: 20 }}
           animate={{
             opacity: isInView ? 1 : 0,
             y: isInView ? 0 : 20,
           }}
           transition={{ duration: 1.2, ease: "easeInOut" }}
+          // Faded out it is still a live hit target over every other section
+          style={{ pointerEvents: isInView ? "auto" : "none" }}
         >
           <h2
             className="font-montserrat font-medium text-[0.6125rem] md:text-[0.7rem] uppercase tracking-[0.35em] whitespace-nowrap inline-block relative glitch-flicker"
@@ -140,58 +139,76 @@ export default function CollectionSection() {
           </h2>
         </motion.div>
 
-        {/* Color flip toggle - positioned at 3/4 from left */}
-        <motion.div
-          className="absolute pointer-events-auto"
-          style={{ left: "75%", top: "clamp(130px, 18vh, 200px)", transform: "translateX(-50%)" }}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{
-            opacity: isInView ? 1 : 0,
-            y: isInView ? 0 : 20,
-          }}
-          transition={{ duration: 1.2, ease: "easeInOut" }}
-        >
-          <button
-            onClick={toggleColor}
-            className="relative flex items-center cursor-pointer select-none group"
-            aria-label={`Switch to ${selectedColor === "brown" ? "black" : "brown"} boot`}
+        {/* Colour flip toggle.
+            Positioning lives on this static wrapper: framer-motion writes its
+            own `transform` for the entrance animation, which used to wipe out
+            the translateX(-50%) centring and shove the control off-screen. */}
+        <div className="collection-toggle">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{
+              opacity: isInView ? 1 : 0,
+              y: isInView ? 0 : 20,
+            }}
+            transition={{ duration: 1.2, ease: "easeInOut" }}
+            style={{ pointerEvents: isInView ? "auto" : "none" }}
           >
-            <div className="relative flex items-center rounded-full border border-[#f6f4ed]/30 overflow-hidden"
-              style={{ backdropFilter: "blur(8px)", background: "rgba(0,0,0,0.15)" }}
+            <button
+              onClick={toggleColor}
+              className="relative flex items-center cursor-pointer select-none"
+              aria-label={`Switch to ${selectedColor === "brown" ? "black" : "brown"} boot`}
             >
-              {/* Sliding pill indicator */}
-              <motion.div
-                className="absolute top-0 bottom-0 rounded-full"
+              {/* The product photography is on a white studio backdrop, so the
+                  control is navy-on-white rather than beige-on-dark */}
+              <div
+                className="relative flex items-center w-[176px] md:w-[188px] rounded-full overflow-hidden"
                 style={{
-                  width: "50%",
-                  background: "rgba(246,244,237,0.18)",
-                  borderRadius: "9999px",
+                  backdropFilter: "blur(8px)",
+                  WebkitBackdropFilter: "blur(8px)",
+                  background: "rgba(246,244,237,0.55)",
+                  border: "1px solid rgba(0,29,74,0.2)",
                 }}
-                animate={{ x: selectedColor === "brown" ? "0%" : "100%" }}
-                transition={{ type: "spring", stiffness: 300, damping: 28 }}
-              />
+              >
+                {/* Sliding pill indicator */}
+                <motion.div
+                  className="absolute top-0 bottom-0 rounded-full"
+                  style={{
+                    width: "50%",
+                    background: "#001d4a",
+                    borderRadius: "9999px",
+                  }}
+                  animate={{ x: selectedColor === "brown" ? "0%" : "100%" }}
+                  transition={{ type: "spring", stiffness: 300, damping: 28 }}
+                />
 
-              <span
-                className="relative z-10 px-5 py-2 font-montserrat font-medium text-[0.55rem] md:text-[0.6rem] uppercase tracking-[0.3em] transition-opacity duration-300"
-                style={{
-                  color: "#f6f4ed",
-                  opacity: selectedColor === "brown" ? 1 : 0.45,
-                }}
-              >
-                Brown
-              </span>
-              <span
-                className="relative z-10 px-5 py-2 font-montserrat font-medium text-[0.55rem] md:text-[0.6rem] uppercase tracking-[0.3em] transition-opacity duration-300"
-                style={{
-                  color: "#f6f4ed",
-                  opacity: selectedColor === "black" ? 1 : 0.45,
-                }}
-              >
-                Black
-              </span>
-            </div>
-          </button>
-        </motion.div>
+                <span
+                  className="relative z-10 flex-1 text-center py-2.5 font-montserrat font-medium text-[0.55rem] md:text-[0.6rem] uppercase tracking-[0.3em]"
+                  style={{
+                    color:
+                      selectedColor === "brown"
+                        ? "#f6f4ed"
+                        : "rgba(0,29,74,0.55)",
+                    transition: "color 0.25s ease-in-out",
+                  }}
+                >
+                  Brown
+                </span>
+                <span
+                  className="relative z-10 flex-1 text-center py-2.5 font-montserrat font-medium text-[0.55rem] md:text-[0.6rem] uppercase tracking-[0.3em]"
+                  style={{
+                    color:
+                      selectedColor === "black"
+                        ? "#f6f4ed"
+                        : "rgba(0,29,74,0.55)",
+                    transition: "color 0.25s ease-in-out",
+                  }}
+                >
+                  Black
+                </span>
+              </div>
+            </button>
+          </motion.div>
+        </div>
       </div>
 
       {/* Scroll-driven stacked image panels */}
@@ -226,15 +243,20 @@ export default function CollectionSection() {
                   willChange: "transform",
                 }}
               >
-                <div className="relative w-full h-full overflow-hidden">
+                {/* White ground so the letterboxing on narrow viewports melts
+                    into the studio backdrop of the shots themselves */}
+                <div
+                  className="relative w-full h-full overflow-hidden"
+                  style={{ backgroundColor: "#ffffff" }}
+                >
                   <Image
                     src={src}
                     alt={`Brown boot angle ${index + 1}`}
                     fill
-                    className="object-cover object-center"
-                    priority={index === 0}
-                    quality={90}
+                    className="collection-boot-image object-center"
+                    quality={85}
                     sizes="100vw"
+                    onLoad={() => markLoaded(src)}
                     style={{
                       opacity: isLoaded && selectedColor === "brown" ? 1 : 0,
                       transition: "opacity 0.6s ease-in-out",
@@ -244,10 +266,10 @@ export default function CollectionSection() {
                     src={BLACK_IMAGES[index]}
                     alt={`Black boot angle ${index + 1}`}
                     fill
-                    className="object-cover object-center"
-                    priority={false}
-                    quality={90}
+                    className="collection-boot-image object-center"
+                    quality={85}
                     sizes="100vw"
+                    onLoad={() => markLoaded(BLACK_IMAGES[index])}
                     style={{
                       opacity:
                         loadedImages.has(BLACK_IMAGES[index]) &&

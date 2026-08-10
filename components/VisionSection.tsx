@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import Section from "./Section";
 import Image from "next/image";
@@ -8,12 +8,16 @@ import Image from "next/image";
 /**
  * Samples the center of an image to determine if it's dark or light.
  * Returns true if the image center is dark (needs light text).
+ *
+ * Reads a 64px-wide thumbnail from the image optimizer rather than the 2880px
+ * original — an average brightness needs a couple of KB, not half a megabyte.
  */
 function analyzeImageBrightness(src: string): Promise<boolean> {
   return new Promise((resolve) => {
     const img = new window.Image();
     img.crossOrigin = "anonymous";
-    img.src = src;
+    // 64 must stay in next.config.js `imageSizes`, or the optimizer 400s
+    img.src = `/_next/image?url=${encodeURIComponent(src)}&w=64&q=50`;
     img.onload = () => {
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
@@ -57,16 +61,12 @@ export default function VisionSection({ images }: VisionSectionProps) {
   const [isInView, setIsInView] = useState(false);
   const [imageDarkness, setImageDarkness] = useState<Map<number, boolean>>(new Map());
 
-  // Preload images and analyze their brightness
+  // Analyze brightness for text color adaptation.
+  // Load bookkeeping is handled by next/image's onLoad below — preloading here
+  // with `new window.Image()` pulled the raw originals past the optimizer, so
+  // every panel was downloaded twice.
   useEffect(() => {
     images.forEach((src, index) => {
-      const img = new window.Image();
-      img.src = src;
-      img.onload = () => {
-        setLoadedImages((prev) => new Set(prev).add(src));
-      };
-
-      // Analyze brightness for text color adaptation
       analyzeImageBrightness(src).then((isDark) => {
         setImageDarkness((prev) => {
           const next = new Map(prev);
@@ -76,6 +76,10 @@ export default function VisionSection({ images }: VisionSectionProps) {
       });
     });
   }, [images]);
+
+  const markLoaded = useCallback((src: string) => {
+    setLoadedImages((prev) => (prev.has(src) ? prev : new Set(prev).add(src)));
+  }, []);
 
   // Scroll-driven animation and visibility detection
   useEffect(() => {
@@ -208,13 +212,16 @@ export default function VisionSection({ images }: VisionSectionProps) {
       {/* Vision Header - Only visible when section is in view, centered on screen */}
       <div className="fixed inset-0 z-[60] flex items-center justify-center pointer-events-none">
         <motion.div
-          className="text-center pointer-events-auto"
+          className="text-center"
           initial={{ opacity: 0, y: 20 }}
-          animate={{ 
+          animate={{
             opacity: isInView ? 1 : 0,
             y: isInView ? 0 : 20
           }}
           transition={{ duration: 1.2, ease: "easeInOut" }}
+          // Invisible but still hit-testable, it swallowed taps dead-centre of
+          // every other section — including the waitlist inputs
+          style={{ pointerEvents: isInView ? "auto" : "none" }}
         >
           <h2
             id="vision-title"
@@ -285,8 +292,9 @@ export default function VisionSection({ images }: VisionSectionProps) {
                     fill
                     className="object-cover object-bottom"
                     priority={index === 0}
-                    quality={90}
+                    quality={85}
                     sizes="100vw"
+                    onLoad={() => markLoaded(imageSrc)}
                     style={{
                       opacity: isLoaded ? 1 : 0,
                       transition: "opacity 0.3s ease-in-out",
